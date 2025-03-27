@@ -8,7 +8,14 @@
   "main": "index.js",
   "scripts": {
     "dev:payload": "cd payload && pnpm dev",
+    "_dev:payload": "cd payload && pnpm _dev",
     "dev:website": "cd website && pnpm dev",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.0.8",
+      "@types/react-dom": "19.0.3"
+    }
   }
 }

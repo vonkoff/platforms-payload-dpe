@@ -1,0 +1,68 @@
+@import '../../theme/colors.scss';
+@import '../../theme/app.scss';
+
+/* INFO: THIS TO BELOW IS FOR THE EDDIT BUTTON for SEARCH PLUGIN! */
+/* Make the Edit Details label stand out with button styling */
+[data-field-path$="doc"] .payload__field-label,
+[data-field-path$="doc"] .payload__field-label span,
+label[for$="field-doc"],
+label[for$="field-doc"] span {
+  display: inline-block;
+  background-color: var(--theme-success-500);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+/* Hover effect */
+[data-field-path$="doc"] .payload__field-label:hover,
+label[for$="field-doc"]:hover {
+  background-color: var(--theme-success-600);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Active click effect */
+[data-field-path$="doc"] .payload__field-label:active,
+label[for$="field-doc"]:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Make it more prominent on the search results page */
+.collection-list [data-field-path$="doc"] .payload__field-label,
+.collection-list label[for$="field-doc"] {
+  font-size: 110%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* Add an edit icon before the text */
+[data-field-path$="doc"] .payload__field-label::before,
+label[for$="field-doc"]::before {
+  content: "✏️";
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+/* Ensure the styling works in both light and dark mode */
+@media (prefers-color-scheme: dark) {
+
+  [data-field-path$="doc"] .payload__field-label,
+  [data-field-path$="doc"] .payload__field-label span,
+  label[for$="field-doc"],
+  label[for$="field-doc"] span {
+    background-color: var(--theme-success-400);
+    color: var(--theme-elevation-0);
+  }
+
+  [data-field-path$="doc"] .payload__field-label:hover,
+  label[for$="field-doc"]:hover {
+    background-color: var(--theme-success-300);
+  }
+}

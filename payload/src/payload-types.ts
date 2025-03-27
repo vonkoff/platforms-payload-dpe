@@ -6,23 +6,99 @@
  * and re-run `payload generate:types` to regenerate this file.
  */
 
+/**
+ * Supported timezones in IANA format.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "supportedTimezones".
+ */
+export type SupportedTimezones =
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
+
 export interface Config {
   auth: {
     users: UserAuthOperations;
   };
+  blocks: {};
   collections: {
-    users: User;
-    media: Media;
+    pages: Page;
     posts: Post;
+    media: Media;
+    categories: Category;
+    users: User;
+    tenants: Tenant;
+    general: General;
+    vehicles: Vehicle;
+    redirects: Redirect;
+    forms: Form;
+    'form-submissions': FormSubmission;
+    search: Search;
+    'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
+    tenants: TenantsSelect<false> | TenantsSelect<true>;
+    general: GeneralSelect<false> | GeneralSelect<true>;
+    vehicles: VehiclesSelect<false> | VehiclesSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
+    forms: FormsSelect<false> | FormsSelect<true>;
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
+    search: SearchSelect<false> | SearchSelect<true>;
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -37,7 +113,13 @@ export interface Config {
     collection: 'users';
   };
   jobs: {
-    tasks: unknown;
+    tasks: {
+      schedulePublish: TaskSchedulePublish;
+      inline: {
+        input: unknown;
+        output: unknown;
+      };
+    };
     workflows: unknown;
   };
 }
@@ -61,20 +143,144 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "pages".
  */
-export interface User {
+export interface Page {
   id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  hero: {
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    richText?: {
+      root: {
+        type: string;
+        children: {
+          type: string;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    links?:
+      | {
+          link: {
+            type?: ('reference' | 'custom') | null;
+            newTab?: boolean | null;
+            reference?:
+              | ({
+                  relationTo: 'pages';
+                  value: string | Page;
+                } | null)
+              | ({
+                  relationTo: 'posts';
+                  value: string | Post;
+                } | null);
+            url?: string | null;
+            label: string;
+            /**
+             * Choose how the link should be rendered.
+             */
+            appearance?: ('default' | 'outline') | null;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    media?: (string | null) | Media;
+  };
+  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  password?: string | null;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants".
+ */
+export interface Tenant {
+  id: string;
+  name: string;
+  /**
+   * Used for domain-based tenant handling
+   */
+  domain?: string | null;
+  /**
+   * Used for url paths, example: /tenant-slug/page-slug
+   */
+  slug: string;
+  /**
+   * DealerID of Tenant for SFTP purposes
+   */
+  dealerId: string;
+  /**
+   * If checked, logging in is not required to read. Useful for building public pages.
+   */
+  allowPublicRead?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  title: string;
+  heroImage?: (string | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (string | Post)[] | null;
+  categories?: (string | Category)[] | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  authors?: (string | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+      }[]
+    | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -82,7 +288,22 @@ export interface User {
  */
 export interface Media {
   id: string;
-  alt: string;
+  alt?: string | null;
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -94,14 +315,1502 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    square?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    small?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    medium?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    large?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    xlarge?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    og?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
+ * via the `definition` "categories".
  */
-export interface Post {
+export interface Category {
   id: string;
   title: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  parent?: (string | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: string;
+  roles?: ('super-admin' | 'user')[] | null;
+  username?: string | null;
+  tenants?:
+    | {
+        tenant: string | Tenant;
+        roles: ('tenant-admin' | 'tenant-viewer')[];
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  enableAPIKey?: boolean | null;
+  apiKey?: string | null;
+  apiKeyIndex?: string | null;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock".
+ */
+export interface CallToActionBlock {
+  richText?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'cta';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock".
+ */
+export interface ContentBlock {
+  columns?:
+    | {
+        size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
+        richText?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        enableLink?: boolean | null;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: string | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: string | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: string | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveBlock".
+ */
+export interface ArchiveBlock {
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  populateBy?: ('collection' | 'selection') | null;
+  relationTo?: 'posts' | null;
+  categories?: (string | Category)[] | null;
+  limit?: number | null;
+  selectedDocs?:
+    | {
+        relationTo: 'posts';
+        value: string | Post;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'archive';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock".
+ */
+export interface FormBlock {
+  form: string | Form;
+  enableIntro?: boolean | null;
+  introContent?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'formBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms".
+ */
+export interface Form {
+  id: string;
+  title: string;
+  fields?:
+    | (
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            defaultValue?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'checkbox';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'country';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'email';
+          }
+        | {
+            message?: {
+              root: {
+                type: string;
+                children: {
+                  type: string;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'message';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'number';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            placeholder?: string | null;
+            options?:
+              | {
+                  label: string;
+                  value: string;
+                  id?: string | null;
+                }[]
+              | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'select';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'state';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'text';
+          }
+        | {
+            name: string;
+            label?: string | null;
+            width?: number | null;
+            defaultValue?: string | null;
+            required?: boolean | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'textarea';
+          }
+      )[]
+    | null;
+  submitButtonLabel?: string | null;
+  /**
+   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
+   */
+  confirmationType?: ('message' | 'redirect') | null;
+  confirmationMessage?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  redirect?: {
+    url: string;
+  };
+  /**
+   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
+   */
+  emails?:
+    | {
+        emailTo?: string | null;
+        cc?: string | null;
+        bcc?: string | null;
+        replyTo?: string | null;
+        emailFrom?: string | null;
+        subject: string;
+        /**
+         * Enter the message that should be sent in this email.
+         */
+        message?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "general".
+ */
+export interface General {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  departmentHours?: {
+    weekdayHours?:
+      | {
+          days: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday')[];
+          openTime: string;
+          closeTime: string;
+          id?: string | null;
+        }[]
+      | null;
+    displaySettings?: {
+      openText?: string | null;
+      closedText?: string | null;
+      hoursLabel?: string | null;
+    };
+  };
+  dealerInfo: {
+    dealerInfo: {
+      basicInfo: {
+        /**
+         * Name of the dealer with proper capitalization.
+         */
+        name: string;
+        /**
+         * Description of the dealer that shows on certain pages.
+         */
+        description?: string | null;
+      };
+      location?: {
+        address?: string | null;
+        city?: string | null;
+        state?: string | null;
+        zipcode?: string | null;
+        country?: string | null;
+        /**
+         * @minItems 2
+         * @maxItems 2
+         */
+        location?: [number, number] | null;
+        googleMapsUrl?: string | null;
+        googleMapsApiKey?: string | null;
+      };
+      phoneNumbers?: {
+        enablePhoneSorting?: boolean | null;
+        default?: string | null;
+        fax?: string | null;
+        tollFree?: string | null;
+        commercial?: string | null;
+        mobileCommercial?: string | null;
+        financing?: string | null;
+        parts?: string | null;
+        mobileParts?: string | null;
+        sales?: string | null;
+        mobileSales?: string | null;
+        service?: string | null;
+        mobileService?: string | null;
+        bodyShop?: string | null;
+        collisionCenter?: string | null;
+        insuranceCenter?: string | null;
+        rentalCenter?: string | null;
+      };
+      emailAddresses?: {
+        default?: string | null;
+        replyTo?: string | null;
+        financing?: string | null;
+        parts?: string | null;
+        sales?: string | null;
+        service?: string | null;
+        bodyShop?: string | null;
+        collisionCenter?: string | null;
+      };
+    };
+  };
+  siteNotice?: {
+    siteNotice?: {
+      enabled?: boolean | null;
+      displayAtTop?: boolean | null;
+      removeCloseButton?: boolean | null;
+      removeIBackground?: boolean | null;
+      /**
+       * Enter the hex code (6 digit color code) of a specific color. Red is the default (b90000).
+       */
+      backgroundColor?: string | null;
+      /**
+       * Enter the hex code (6 digit color code) of a specific color. White is the default (ffffff).
+       */
+      textColor?: string | null;
+      /**
+       * Enter a message below to show on all pages across your site.
+       */
+      message?: {
+        root: {
+          type: string;
+          children: {
+            type: string;
+            version: number;
+            [k: string]: unknown;
+          }[];
+          direction: ('ltr' | 'rtl') | null;
+          format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+          indent: number;
+          version: number;
+        };
+        [k: string]: unknown;
+      } | null;
+    };
+  };
+  social?: {
+    social?: {
+      dealerProfiles?: {
+        carsUrl?: string | null;
+        dealerRaterUrl?: string | null;
+        edmundsUrl?: string | null;
+        reviewsFeedUrl?: string | null;
+      };
+      socialMedia?: {
+        facebook?: {
+          url?: string | null;
+          appId?: string | null;
+          /**
+           * Optional - Used to bypass certain Facebook limits for access tokens
+           */
+          appSecret?: string | null;
+        };
+        instagram?: string | null;
+        linkedin?: string | null;
+        maps?: string | null;
+        pinterest?: string | null;
+        tiktok?: string | null;
+        xTwitter?: string | null;
+        yelp?: string | null;
+        youtube?: string | null;
+      };
+      openGraph?: {
+        type?: string | null;
+        title?: string | null;
+        url?: string | null;
+        description?: string | null;
+        siteName?: string | null;
+      };
+    };
+  };
+  trackingCodes?: {
+    trackingCodes?: {
+      autoTrader?: {
+        digitalAudienceAnalysisSslUrl?: string | null;
+        digitalAudienceAnalysisNonSslUrl?: string | null;
+      };
+      edmundsPartnerAnalytics?: {
+        /**
+         * Numeric value from Script line
+         */
+        partnerId?: string | null;
+      };
+      hubSpot?: {
+        /**
+         * ID from the code snippet
+         */
+        trackingId?: string | null;
+      };
+      mixPanel?: {
+        /**
+         * Project ID from MixPanel Admin / Code Snippet
+         */
+        projectId?: string | null;
+        /**
+         * Events that apply site-wide
+         */
+        globallyTrackedEvents?: string | null;
+      };
+      lotLinx?: {
+        /**
+         * Value of LotLinxID from the Code Snippet
+         */
+        lotLinxId?: string | null;
+      };
+    };
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vehicles".
+ */
+export interface Vehicle {
+  id: string;
+  tenant?: (string | null) | Tenant;
+  vin?: string | null;
+  'vin 🚗'?: string | null;
+  stock?: string | null;
+  /**
+   * This field is locked.
+   */
+  'stock 🔒'?: string | null;
+  dateAdded?: string | null;
+  /**
+   * This field is locked.
+   */
+  'dateAdded 🔒'?: string | null;
+  dateInStock?: string | null;
+  /**
+   * This field is locked.
+   */
+  'dateInStock 🔒'?: string | null;
+  age?: number | null;
+  /**
+   * This field is locked.
+   */
+  'age 🔒'?: number | null;
+  internetSpecial?: boolean | null;
+  /**
+   * This field is locked.
+   */
+  'internetSpecial 🔒'?: boolean | null;
+  viewCount?: number | null;
+  /**
+   * This field is locked.
+   */
+  'viewCount 🔒'?: number | null;
+  /**
+   * Select fields to prevent automatic updates.
+   */
+  lockedFields?:
+    | {
+        field:
+          | 'vin'
+          | 'stock'
+          | 'year'
+          | 'make'
+          | 'model'
+          | 'trim'
+          | 'ourPrice'
+          | 'type'
+          | 'dateAdded'
+          | 'dateInStock'
+          | 'internetSpecial'
+          | 'viewCount'
+          | 'originalPrice'
+          | 'sellingPrice'
+          | 'msrp'
+          | 'bookValue'
+          | 'invoice'
+          | 'internetPrice'
+          | 'cost'
+          | 'packCost'
+          | 'additionalEquipmentCost'
+          | 'wholesalePrice'
+          | 'holdbackCost'
+          | 'floorPlanCost'
+          | 'dealerProcessingFee'
+          | 'miscPrice1'
+          | 'miscPrice2'
+          | 'miscPrice3'
+          | 'discounts'
+          | 'totalSavings'
+          | 'leasePayment'
+          | 'advancedPricingDetail'
+          | 'description'
+          | 'odometer'
+          | 'body'
+          | 'bodytype'
+          | 'doors'
+          | 'capacity'
+          | 'exteriorColor'
+          | 'exteriorColorGeneric'
+          | 'interiorColor'
+          | 'interiorColorGeneric'
+          | 'cityMpg'
+          | 'hwMpg'
+          | 'evRange'
+          | 'fueltype'
+          | 'engineDescription'
+          | 'cylinders'
+          | 'engineDisplacement'
+          | 'hp'
+          | 'engineBlockType'
+          | 'engineAspirationType'
+          | 'transmissionDescription'
+          | 'drivetrain'
+          | 'dateModified'
+          | 'dateSold'
+          | 'eta'
+          | 'certified'
+          | 'location'
+          | 'status'
+          | 'inTransit'
+          | 'daysInStock'
+          | 'dealerId'
+          | 'nhtsaVehicleData'
+          | 'styleDescription'
+          | 'modelNumber'
+          | 'modelCode'
+          | 'chromeBody'
+          | 'chromeExteriorColor'
+          | 'chromeMake'
+          | 'chromeModel'
+          | 'chromeStyleId'
+          | 'chromeStyleName'
+          | 'chromeTrim'
+          | 'features'
+          | 'historyReportLogo'
+          | 'modelYear'
+          | 'options'
+          | 'premiumOptions'
+          | 'warranty';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * e.g., New, Used, Certified Used
+   */
+  type?: ('new' | 'used' | 'certified_used') | null;
+  /**
+   * This field is locked.
+   */
+  'type 🔒'?: string | null;
+  year?: number | null;
+  /**
+   * This field is locked.
+   */
+  'year 🔒'?: number | null;
+  make?: string | null;
+  /**
+   * This field is locked.
+   */
+  'make 🔒'?: string | null;
+  model?: string | null;
+  /**
+   * This field is locked.
+   */
+  'model 🔒'?: string | null;
+  trim?: string | null;
+  /**
+   * This field is locked.
+   */
+  'trim 🔒'?: string | null;
+  photoUrls?:
+    | {
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  photosLastModified?: string | null;
+  ourPrice?: number | null;
+  /**
+   * This field is locked.
+   */
+  'ourPrice 🔒'?: number | null;
+  originalPrice?: number | null;
+  /**
+   * This field is locked.
+   */
+  'originalPrice 🔒'?: number | null;
+  sellingPrice?: number | null;
+  /**
+   * This field is locked.
+   */
+  'sellingPrice 🔒'?: number | null;
+  msrp?: number | null;
+  /**
+   * This field is locked.
+   */
+  'msrp 🔒'?: number | null;
+  internetPrice?: number | null;
+  /**
+   * This field is locked.
+   */
+  'internetPrice 🔒'?: number | null;
+  bookValue?: number | null;
+  /**
+   * This field is locked.
+   */
+  'bookValue 🔒'?: number | null;
+  invoice?: number | null;
+  /**
+   * This field is locked.
+   */
+  'invoice 🔒'?: number | null;
+  cost?: number | null;
+  /**
+   * This field is locked.
+   */
+  'cost 🔒'?: number | null;
+  packCost?: number | null;
+  /**
+   * This field is locked.
+   */
+  'packCost 🔒'?: number | null;
+  additionalEquipmentCost?: number | null;
+  /**
+   * This field is locked.
+   */
+  'additionalEquipmentCost 🔒'?: number | null;
+  wholesalePrice?: number | null;
+  /**
+   * This field is locked.
+   */
+  'wholesalePrice 🔒'?: number | null;
+  holdbackCost?: number | null;
+  /**
+   * This field is locked.
+   */
+  'holdbackCost 🔒'?: number | null;
+  floorPlanCost?: number | null;
+  /**
+   * This field is locked.
+   */
+  'floorPlanCost 🔒'?: number | null;
+  dealerProcessingFee?: number | null;
+  /**
+   * This field is locked.
+   */
+  'dealerProcessingFee 🔒'?: number | null;
+  miscPrice1?: number | null;
+  /**
+   * This field is locked.
+   */
+  'miscPrice1 🔒'?: number | null;
+  miscPrice2?: number | null;
+  /**
+   * This field is locked.
+   */
+  'miscPrice2 🔒'?: number | null;
+  miscPrice3?: number | null;
+  /**
+   * This field is locked.
+   */
+  'miscPrice3 🔒'?: number | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * This field is locked.
+   */
+  'description 🔒'?: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  odometer?: number | null;
+  /**
+   * This field is locked.
+   */
+  'odometer 🔒'?: number | null;
+  /**
+   * e.g., Sedan, SUV
+   */
+  body?: string | null;
+  /**
+   * This field is locked.
+   */
+  'body 🔒'?: string | null;
+  /**
+   * Broader category, e.g., Passenger Car
+   */
+  bodytype?: string | null;
+  /**
+   * This field is locked.
+   */
+  'bodytype 🔒'?: string | null;
+  doors?: number | null;
+  /**
+   * This field is locked.
+   */
+  'doors 🔒'?: number | null;
+  capacity?: number | null;
+  /**
+   * This field is locked.
+   */
+  'capacity 🔒'?: number | null;
+  exteriorColor?: string | null;
+  /**
+   * This field is locked.
+   */
+  'exteriorColor 🔒'?: string | null;
+  /**
+   * e.g., Blue instead of Midnight Blue
+   */
+  exteriorColorGeneric?: string | null;
+  /**
+   * This field is locked.
+   */
+  'exteriorColorGeneric 🔒'?: string | null;
+  interiorColor?: string | null;
+  /**
+   * This field is locked.
+   */
+  'interiorColor 🔒'?: string | null;
+  interiorColorGeneric?: string | null;
+  /**
+   * This field is locked.
+   */
+  'interiorColorGeneric 🔒'?: string | null;
+  cityMpg?: string | null;
+  /**
+   * This field is locked.
+   */
+  'cityMpg 🔒'?: string | null;
+  hwMpg?: string | null;
+  /**
+   * This field is locked.
+   */
+  'hwMpg 🔒'?: string | null;
+  evRange?: string | null;
+  /**
+   * This field is locked.
+   */
+  'evRange 🔒'?: string | null;
+  fueltype?: string | null;
+  /**
+   * This field is locked.
+   */
+  'fueltype 🔒'?: string | null;
+  engineDescription?: string | null;
+  /**
+   * This field is locked.
+   */
+  'engineDescription 🔒'?: string | null;
+  cylinders?: number | null;
+  /**
+   * This field is locked.
+   */
+  'cylinders 🔒'?: number | null;
+  engineDisplacement?: number | null;
+  /**
+   * This field is locked.
+   */
+  'engineDisplacement 🔒'?: number | null;
+  hp?: number | null;
+  /**
+   * This field is locked.
+   */
+  'hp 🔒'?: number | null;
+  engineBlockType?: string | null;
+  /**
+   * This field is locked.
+   */
+  'engineBlockType 🔒'?: string | null;
+  engineAspirationType?: string | null;
+  /**
+   * This field is locked.
+   */
+  'engineAspirationType 🔒'?: string | null;
+  transmissionDescription?: string | null;
+  /**
+   * This field is locked.
+   */
+  'transmissionDescription 🔒'?: string | null;
+  drivetrain?: string | null;
+  /**
+   * This field is locked.
+   */
+  'drivetrain 🔒'?: string | null;
+  dateModified?: string | null;
+  /**
+   * This field is locked.
+   */
+  'dateModified 🔒'?: string | null;
+  dateSold?: string | null;
+  /**
+   * This field is locked.
+   */
+  'dateSold 🔒'?: string | null;
+  eta?: string | null;
+  /**
+   * This field is locked.
+   */
+  'eta 🔒'?: string | null;
+  certified?: boolean | null;
+  /**
+   * This field is locked.
+   */
+  'certified 🔒'?: boolean | null;
+  location?: string | null;
+  /**
+   * This field is locked.
+   */
+  'location 🔒'?: string | null;
+  status?: string | null;
+  /**
+   * This field is locked.
+   */
+  'status 🔒'?: string | null;
+  inTransit?: ('Yes' | 'No') | null;
+  /**
+   * This field is locked.
+   */
+  'inTransit 🔒'?: ('Yes' | 'No') | null;
+  daysInStock?: string | null;
+  /**
+   * This field is locked.
+   */
+  'daysInStock 🔒'?: string | null;
+  dealerId?: string | null;
+  /**
+   * This field is locked.
+   */
+  'dealerId 🔒'?: string | null;
+  /**
+   * Interior features of the vehicle
+   */
+  Interior?:
+    | {
+        /**
+         * Add a Interior feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Exterior features of the vehicle
+   */
+  Exterior?:
+    | {
+        /**
+         * Add a Exterior feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Tech features of the vehicle
+   */
+  Tech?:
+    | {
+        /**
+         * Add a Tech feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Entertainment features of the vehicle
+   */
+  Entertainment?:
+    | {
+        /**
+         * Add a Entertainment feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Safety features of the vehicle
+   */
+  Safety?:
+    | {
+        /**
+         * Add a Safety feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * PremiumOptions features of the vehicle
+   */
+  PremiumOptions?:
+    | {
+        /**
+         * Add a PremiumOptions feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Comfort features of the vehicle
+   */
+  Comfort?:
+    | {
+        /**
+         * Add a Comfort feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Convenience features of the vehicle
+   */
+  Convenience?:
+    | {
+        /**
+         * Add a Convenience feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * ExteriorAndAppearance features of the vehicle
+   */
+  ExteriorAndAppearance?:
+    | {
+        /**
+         * Add a ExteriorAndAppearance feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * FuelEconomyAndEmissions features of the vehicle
+   */
+  FuelEconomyAndEmissions?:
+    | {
+        /**
+         * Add a FuelEconomyAndEmissions feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * InCarEntertainment features of the vehicle
+   */
+  InCarEntertainment?:
+    | {
+        /**
+         * Add a InCarEntertainment feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * PowertrainAndMechanical features of the vehicle
+   */
+  PowertrainAndMechanical?:
+    | {
+        /**
+         * Add a PowertrainAndMechanical feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * TechnologyAndTelematics features of the vehicle
+   */
+  TechnologyAndTelematics?:
+    | {
+        /**
+         * Add a TechnologyAndTelematics feature
+         */
+        feature: string;
+        id?: string | null;
+      }[]
+    | null;
+  nhtsaVehicleData?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * This field is locked.
+   */
+  'nhtsaVehicleData 🔒'?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  styleDescription?: string | null;
+  /**
+   * This field is locked.
+   */
+  'styleDescription 🔒'?: string | null;
+  modelNumber?: string | null;
+  /**
+   * This field is locked.
+   */
+  'modelNumber 🔒'?: string | null;
+  modelCode?: string | null;
+  /**
+   * This field is locked.
+   */
+  'modelCode 🔒'?: string | null;
+  chromeBody?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeBody 🔒'?: string | null;
+  chromeExteriorColor?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeExteriorColor 🔒'?: string | null;
+  chromeMake?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeMake 🔒'?: string | null;
+  chromeModel?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeModel 🔒'?: string | null;
+  chromeStyleId?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeStyleId 🔒'?: string | null;
+  chromeStyleName?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeStyleName 🔒'?: string | null;
+  chromeTrim?: string | null;
+  /**
+   * This field is locked.
+   */
+  'chromeTrim 🔒'?: string | null;
+  features?: string | null;
+  /**
+   * This field is locked.
+   */
+  'features 🔒'?: string | null;
+  historyReportLogo?: string | null;
+  /**
+   * This field is locked.
+   */
+  'historyReportLogo 🔒'?: string | null;
+  modelYear?: string | null;
+  /**
+   * This field is locked.
+   */
+  'modelYear 🔒'?: string | null;
+  options?: string | null;
+  /**
+   * This field is locked.
+   */
+  'options 🔒'?: string | null;
+  premiumOptions?: string | null;
+  /**
+   * This field is locked.
+   */
+  'premiumOptions 🔒'?: string | null;
+  warranty?: string | null;
+  /**
+   * This field is locked.
+   */
+  'warranty 🔒'?: string | null;
+  disposition?: string | null;
+  /**
+   * This field is locked.
+   */
+  'disposition 🔒'?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: string;
+  /**
+   * You will need to rebuild the website when changing this field.
+   */
+  from: string;
+  to?: {
+    type?: ('reference' | 'custom') | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null);
+    url?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submissions".
+ */
+export interface FormSubmission {
+  id: string;
+  form: string | Form;
+  submissionData?:
+    | {
+        field: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This is a collection of automatically created search results. These results are used by the global site search and will be updated automatically as documents in the CMS are created or updated.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search".
+ */
+export interface Search {
+  id: string;
+  title?: string | null;
+  priority?: number | null;
+  /**
+   * Link to the original document
+   */
+  doc: {
+    relationTo: 'posts';
+    value: string | Post;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs".
+ */
+export interface PayloadJob {
+  id: string;
+  /**
+   * Input data provided to the job
+   */
+  input?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  taskStatus?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt?: string | null;
+  totalTried?: number | null;
+  /**
+   * If hasError is true this job will not be retried
+   */
+  hasError?: boolean | null;
+  /**
+   * If hasError is true, this is the error that caused it
+   */
+  error?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Task execution log
+   */
+  log?:
+    | {
+        executedAt: string;
+        completedAt: string;
+        taskSlug: 'inline' | 'schedulePublish';
+        taskID: string;
+        input?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        output?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        state: 'failed' | 'succeeded';
+        error?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  taskSlug?: ('inline' | 'schedulePublish') | null;
+  queue?: string | null;
+  waitUntil?: string | null;
+  processing?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -113,16 +1822,56 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'pages';
+        value: string | Page;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: string | Post;
       } | null)
     | ({
         relationTo: 'media';
         value: string | Media;
       } | null)
     | ({
-        relationTo: 'posts';
-        value: string | Post;
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: string | User;
+      } | null)
+    | ({
+        relationTo: 'tenants';
+        value: string | Tenant;
+      } | null)
+    | ({
+        relationTo: 'general';
+        value: string | General;
+      } | null)
+    | ({
+        relationTo: 'vehicles';
+        value: string | Vehicle;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: string | Redirect;
+      } | null)
+    | ({
+        relationTo: 'forms';
+        value: string | Form;
+      } | null)
+    | ({
+        relationTo: 'form-submissions';
+        value: string | FormSubmission;
+      } | null)
+    | ({
+        relationTo: 'search';
+        value: string | Search;
+      } | null)
+    | ({
+        relationTo: 'payload-jobs';
+        value: string | PayloadJob;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -168,18 +1917,171 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "pages_select".
  */
-export interface UsersSelect<T extends boolean = true> {
+export interface PagesSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  hero?:
+    | T
+    | {
+        type?: T;
+        richText?: T;
+        links?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                    appearance?: T;
+                  };
+              id?: T;
+            };
+        media?: T;
+      };
+  layout?:
+    | T
+    | {
+        cta?: T | CallToActionBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        archive?: T | ArchiveBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
+  slugLock?: T;
   updatedAt?: T;
   createdAt?: T;
-  email?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CallToActionBlock_select".
+ */
+export interface CallToActionBlockSelect<T extends boolean = true> {
+  richText?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentBlock_select".
+ */
+export interface ContentBlockSelect<T extends boolean = true> {
+  columns?:
+    | T
+    | {
+        size?: T;
+        richText?: T;
+        enableLink?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock_select".
+ */
+export interface MediaBlockSelect<T extends boolean = true> {
+  media?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ArchiveBlock_select".
+ */
+export interface ArchiveBlockSelect<T extends boolean = true> {
+  introContent?: T;
+  populateBy?: T;
+  relationTo?: T;
+  categories?: T;
+  limit?: T;
+  selectedDocs?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FormBlock_select".
+ */
+export interface FormBlockSelect<T extends boolean = true> {
+  form?: T;
+  enableIntro?: T;
+  introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect<T extends boolean = true> {
+  tenant?: T;
+  title?: T;
+  heroImage?: T;
+  content?: T;
+  relatedPosts?: T;
+  categories?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  authors?: T;
+  populatedAuthors?:
+    | T
+    | {
+        id?: T;
+        name?: T;
+      };
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -187,6 +2089,7 @@ export interface UsersSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  caption?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -198,13 +2101,783 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        square?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        small?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        medium?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        large?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        xlarge?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        og?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts_select".
+ * via the `definition` "categories_select".
  */
-export interface PostsSelect<T extends boolean = true> {
+export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
+  slugLock?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect<T extends boolean = true> {
+  roles?: T;
+  username?: T;
+  tenants?:
+    | T
+    | {
+        tenant?: T;
+        roles?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  enableAPIKey?: T;
+  apiKey?: T;
+  apiKeyIndex?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tenants_select".
+ */
+export interface TenantsSelect<T extends boolean = true> {
+  name?: T;
+  domain?: T;
+  slug?: T;
+  dealerId?: T;
+  allowPublicRead?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "general_select".
+ */
+export interface GeneralSelect<T extends boolean = true> {
+  tenant?: T;
+  departmentHours?:
+    | T
+    | {
+        weekdayHours?:
+          | T
+          | {
+              days?: T;
+              openTime?: T;
+              closeTime?: T;
+              id?: T;
+            };
+        displaySettings?:
+          | T
+          | {
+              openText?: T;
+              closedText?: T;
+              hoursLabel?: T;
+            };
+      };
+  dealerInfo?:
+    | T
+    | {
+        dealerInfo?:
+          | T
+          | {
+              basicInfo?:
+                | T
+                | {
+                    name?: T;
+                    description?: T;
+                  };
+              location?:
+                | T
+                | {
+                    address?: T;
+                    city?: T;
+                    state?: T;
+                    zipcode?: T;
+                    country?: T;
+                    location?: T;
+                    googleMapsUrl?: T;
+                    googleMapsApiKey?: T;
+                  };
+              phoneNumbers?:
+                | T
+                | {
+                    enablePhoneSorting?: T;
+                    default?: T;
+                    fax?: T;
+                    tollFree?: T;
+                    commercial?: T;
+                    mobileCommercial?: T;
+                    financing?: T;
+                    parts?: T;
+                    mobileParts?: T;
+                    sales?: T;
+                    mobileSales?: T;
+                    service?: T;
+                    mobileService?: T;
+                    bodyShop?: T;
+                    collisionCenter?: T;
+                    insuranceCenter?: T;
+                    rentalCenter?: T;
+                  };
+              emailAddresses?:
+                | T
+                | {
+                    default?: T;
+                    replyTo?: T;
+                    financing?: T;
+                    parts?: T;
+                    sales?: T;
+                    service?: T;
+                    bodyShop?: T;
+                    collisionCenter?: T;
+                  };
+            };
+      };
+  siteNotice?:
+    | T
+    | {
+        siteNotice?:
+          | T
+          | {
+              enabled?: T;
+              displayAtTop?: T;
+              removeCloseButton?: T;
+              removeIBackground?: T;
+              backgroundColor?: T;
+              textColor?: T;
+              message?: T;
+            };
+      };
+  social?:
+    | T
+    | {
+        social?:
+          | T
+          | {
+              dealerProfiles?:
+                | T
+                | {
+                    carsUrl?: T;
+                    dealerRaterUrl?: T;
+                    edmundsUrl?: T;
+                    reviewsFeedUrl?: T;
+                  };
+              socialMedia?:
+                | T
+                | {
+                    facebook?:
+                      | T
+                      | {
+                          url?: T;
+                          appId?: T;
+                          appSecret?: T;
+                        };
+                    instagram?: T;
+                    linkedin?: T;
+                    maps?: T;
+                    pinterest?: T;
+                    tiktok?: T;
+                    xTwitter?: T;
+                    yelp?: T;
+                    youtube?: T;
+                  };
+              openGraph?:
+                | T
+                | {
+                    type?: T;
+                    title?: T;
+                    url?: T;
+                    description?: T;
+                    siteName?: T;
+                  };
+            };
+      };
+  trackingCodes?:
+    | T
+    | {
+        trackingCodes?:
+          | T
+          | {
+              autoTrader?:
+                | T
+                | {
+                    digitalAudienceAnalysisSslUrl?: T;
+                    digitalAudienceAnalysisNonSslUrl?: T;
+                  };
+              edmundsPartnerAnalytics?:
+                | T
+                | {
+                    partnerId?: T;
+                  };
+              hubSpot?:
+                | T
+                | {
+                    trackingId?: T;
+                  };
+              mixPanel?:
+                | T
+                | {
+                    projectId?: T;
+                    globallyTrackedEvents?: T;
+                  };
+              lotLinx?:
+                | T
+                | {
+                    lotLinxId?: T;
+                  };
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vehicles_select".
+ */
+export interface VehiclesSelect<T extends boolean = true> {
+  tenant?: T;
+  vin?: T;
+  'vin 🚗'?: T;
+  stock?: T;
+  'stock 🔒'?: T;
+  dateAdded?: T;
+  'dateAdded 🔒'?: T;
+  dateInStock?: T;
+  'dateInStock 🔒'?: T;
+  age?: T;
+  'age 🔒'?: T;
+  internetSpecial?: T;
+  'internetSpecial 🔒'?: T;
+  viewCount?: T;
+  'viewCount 🔒'?: T;
+  lockedFields?:
+    | T
+    | {
+        field?: T;
+        id?: T;
+      };
+  type?: T;
+  'type 🔒'?: T;
+  year?: T;
+  'year 🔒'?: T;
+  make?: T;
+  'make 🔒'?: T;
+  model?: T;
+  'model 🔒'?: T;
+  trim?: T;
+  'trim 🔒'?: T;
+  photoUrls?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  photosLastModified?: T;
+  ourPrice?: T;
+  'ourPrice 🔒'?: T;
+  originalPrice?: T;
+  'originalPrice 🔒'?: T;
+  sellingPrice?: T;
+  'sellingPrice 🔒'?: T;
+  msrp?: T;
+  'msrp 🔒'?: T;
+  internetPrice?: T;
+  'internetPrice 🔒'?: T;
+  bookValue?: T;
+  'bookValue 🔒'?: T;
+  invoice?: T;
+  'invoice 🔒'?: T;
+  cost?: T;
+  'cost 🔒'?: T;
+  packCost?: T;
+  'packCost 🔒'?: T;
+  additionalEquipmentCost?: T;
+  'additionalEquipmentCost 🔒'?: T;
+  wholesalePrice?: T;
+  'wholesalePrice 🔒'?: T;
+  holdbackCost?: T;
+  'holdbackCost 🔒'?: T;
+  floorPlanCost?: T;
+  'floorPlanCost 🔒'?: T;
+  dealerProcessingFee?: T;
+  'dealerProcessingFee 🔒'?: T;
+  miscPrice1?: T;
+  'miscPrice1 🔒'?: T;
+  miscPrice2?: T;
+  'miscPrice2 🔒'?: T;
+  miscPrice3?: T;
+  'miscPrice3 🔒'?: T;
+  description?: T;
+  'description 🔒'?: T;
+  odometer?: T;
+  'odometer 🔒'?: T;
+  body?: T;
+  'body 🔒'?: T;
+  bodytype?: T;
+  'bodytype 🔒'?: T;
+  doors?: T;
+  'doors 🔒'?: T;
+  capacity?: T;
+  'capacity 🔒'?: T;
+  exteriorColor?: T;
+  'exteriorColor 🔒'?: T;
+  exteriorColorGeneric?: T;
+  'exteriorColorGeneric 🔒'?: T;
+  interiorColor?: T;
+  'interiorColor 🔒'?: T;
+  interiorColorGeneric?: T;
+  'interiorColorGeneric 🔒'?: T;
+  cityMpg?: T;
+  'cityMpg 🔒'?: T;
+  hwMpg?: T;
+  'hwMpg 🔒'?: T;
+  evRange?: T;
+  'evRange 🔒'?: T;
+  fueltype?: T;
+  'fueltype 🔒'?: T;
+  engineDescription?: T;
+  'engineDescription 🔒'?: T;
+  cylinders?: T;
+  'cylinders 🔒'?: T;
+  engineDisplacement?: T;
+  'engineDisplacement 🔒'?: T;
+  hp?: T;
+  'hp 🔒'?: T;
+  engineBlockType?: T;
+  'engineBlockType 🔒'?: T;
+  engineAspirationType?: T;
+  'engineAspirationType 🔒'?: T;
+  transmissionDescription?: T;
+  'transmissionDescription 🔒'?: T;
+  drivetrain?: T;
+  'drivetrain 🔒'?: T;
+  dateModified?: T;
+  'dateModified 🔒'?: T;
+  dateSold?: T;
+  'dateSold 🔒'?: T;
+  eta?: T;
+  'eta 🔒'?: T;
+  certified?: T;
+  'certified 🔒'?: T;
+  location?: T;
+  'location 🔒'?: T;
+  status?: T;
+  'status 🔒'?: T;
+  inTransit?: T;
+  'inTransit 🔒'?: T;
+  daysInStock?: T;
+  'daysInStock 🔒'?: T;
+  dealerId?: T;
+  'dealerId 🔒'?: T;
+  Interior?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  Exterior?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  Tech?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  Entertainment?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  Safety?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  PremiumOptions?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  Comfort?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  Convenience?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  ExteriorAndAppearance?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  FuelEconomyAndEmissions?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  InCarEntertainment?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  PowertrainAndMechanical?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  TechnologyAndTelematics?:
+    | T
+    | {
+        feature?: T;
+        id?: T;
+      };
+  nhtsaVehicleData?: T;
+  'nhtsaVehicleData 🔒'?: T;
+  styleDescription?: T;
+  'styleDescription 🔒'?: T;
+  modelNumber?: T;
+  'modelNumber 🔒'?: T;
+  modelCode?: T;
+  'modelCode 🔒'?: T;
+  chromeBody?: T;
+  'chromeBody 🔒'?: T;
+  chromeExteriorColor?: T;
+  'chromeExteriorColor 🔒'?: T;
+  chromeMake?: T;
+  'chromeMake 🔒'?: T;
+  chromeModel?: T;
+  'chromeModel 🔒'?: T;
+  chromeStyleId?: T;
+  'chromeStyleId 🔒'?: T;
+  chromeStyleName?: T;
+  'chromeStyleName 🔒'?: T;
+  chromeTrim?: T;
+  'chromeTrim 🔒'?: T;
+  features?: T;
+  'features 🔒'?: T;
+  historyReportLogo?: T;
+  'historyReportLogo 🔒'?: T;
+  modelYear?: T;
+  'modelYear 🔒'?: T;
+  options?: T;
+  'options 🔒'?: T;
+  premiumOptions?: T;
+  'premiumOptions 🔒'?: T;
+  warranty?: T;
+  'warranty 🔒'?: T;
+  disposition?: T;
+  'disposition 🔒'?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  from?: T;
+  to?:
+    | T
+    | {
+        type?: T;
+        reference?: T;
+        url?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "forms_select".
+ */
+export interface FormsSelect<T extends boolean = true> {
+  title?: T;
+  fields?:
+    | T
+    | {
+        checkbox?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              defaultValue?: T;
+              id?: T;
+              blockName?: T;
+            };
+        country?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        email?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        message?:
+          | T
+          | {
+              message?: T;
+              id?: T;
+              blockName?: T;
+            };
+        number?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        select?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              placeholder?: T;
+              options?:
+                | T
+                | {
+                    label?: T;
+                    value?: T;
+                    id?: T;
+                  };
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        state?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        text?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+        textarea?:
+          | T
+          | {
+              name?: T;
+              label?: T;
+              width?: T;
+              defaultValue?: T;
+              required?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  submitButtonLabel?: T;
+  confirmationType?: T;
+  confirmationMessage?: T;
+  redirect?:
+    | T
+    | {
+        url?: T;
+      };
+  emails?:
+    | T
+    | {
+        emailTo?: T;
+        cc?: T;
+        bcc?: T;
+        replyTo?: T;
+        emailFrom?: T;
+        subject?: T;
+        message?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "form-submissions_select".
+ */
+export interface FormSubmissionsSelect<T extends boolean = true> {
+  form?: T;
+  submissionData?:
+    | T
+    | {
+        field?: T;
+        value?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "search_select".
+ */
+export interface SearchSelect<T extends boolean = true> {
+  title?: T;
+  priority?: T;
+  doc?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-jobs_select".
+ */
+export interface PayloadJobsSelect<T extends boolean = true> {
+  input?: T;
+  taskStatus?: T;
+  completedAt?: T;
+  totalTried?: T;
+  hasError?: T;
+  error?: T;
+  log?:
+    | T
+    | {
+        executedAt?: T;
+        completedAt?: T;
+        taskSlug?: T;
+        taskID?: T;
+        input?: T;
+        output?: T;
+        state?: T;
+        error?: T;
+        id?: T;
+      };
+  taskSlug?: T;
+  queue?: T;
+  waitUntil?: T;
+  processing?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -239,6 +2912,64 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSchedulePublish".
+ */
+export interface TaskSchedulePublish {
+  input: {
+    type?: ('publish' | 'unpublish') | null;
+    locale?: string | null;
+    doc?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null);
+    global?: string | null;
+    user?: (string | null) | User;
+  };
+  output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: string;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CodeBlock".
+ */
+export interface CodeBlock {
+  language?: ('typescript' | 'javascript' | 'css') | null;
+  code: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

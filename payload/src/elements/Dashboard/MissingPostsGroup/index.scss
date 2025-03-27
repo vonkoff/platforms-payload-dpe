@@ -1,0 +1,21 @@
+// src/elements/Dashboard/MissingPostsGroup/index.scss
+.missing-posts-group {
+  .dashboard__card-list {
+    li {
+      .feature-card {
+        // Add a slight red tint to the background for warning cards
+        background-color: rgba(239, 68, 68, 0.05);
+        border-color: rgba(239, 68, 68, 0.2);
+
+        &:hover {
+          background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        // Make the count more prominent
+        &__count {
+          color: #ef4444;
+        }
+      }
+    }
+  }
+}

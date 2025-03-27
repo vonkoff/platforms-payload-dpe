@@ -1,0 +1,38 @@
+@layer payload-default {
+  .field-type.CurrencyDisplayField {
+    .field-type__wrap input[type="text"] {
+      border: none !important; // Ensure no border
+      background: transparent !important; // Fully transparent, no gray
+      padding: 8px 0; // Keep padding for alignment
+      color: #000 !important; // Black text
+      font-size: 1rem;
+      font-weight: 500;
+      pointer-events: none; // Non-interactive
+      box-shadow: none !important; // No shadow
+    }
+
+    // Optional: Hide the label if it’s cluttering the view
+    .field-label {
+      visibility: hidden; // Invisible but takes up space
+    }
+  }
+
+  .field-type.LockedCurrencyDisplayField {
+    .field-type__wrap input[type="text"] {
+      border: none !important; // Ensure no border
+      background: transparent !important; // Fully transparent, no gray
+      padding: 8px 0; // Keep padding for alignment
+      color: #000 !important; // Black text
+      font-size: 1rem;
+      font-weight: 500;
+      pointer-events: none; // Non-interactive
+      box-shadow: none !important; // No shadow
+    }
+
+    // Optional: Hide the label if it’s cluttering the view
+    .field-label {
+      visibility: hidden; // Invisible but takes up space
+    }
+  }
+
+}

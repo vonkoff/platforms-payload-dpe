@@ -1,0 +1,31 @@
+// src/components/VehicleImagesField/index.scss
+.vehicle-images-field {
+  .image-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+
+    .image-item {
+      position: relative;
+
+      .filename {
+        text-align: center;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #333;
+      }
+
+      img {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        object-fit: cover;
+      }
+    }
+  }
+
+  .upload-section {
+    margin-top: 1rem;
+  }
+}
