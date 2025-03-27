@@ -27,7 +27,7 @@ import {
   StrikethroughFeature,
   lexicalEditor,
 } from "@payloadcms/richtext-lexical";
-import { getR2Client } from "src/utilities/r2";
+import { getR2Client } from "@/utilities/r2";
 import {
   PutObjectCommand,
   DeleteObjectCommand,

@@ -4,6 +4,13 @@
   "description": "An example of a multi tenant application with Payload",
   "license": "MIT",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "scripts": {
     "_dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
@@ -39,7 +46,7 @@
     "dotenv": "^8.2.0",
     "graphql": "^16.9.0",
     "next": "^15.2.3",
-    "payload": "latest",
+    "payload": "3.31.0",
     "qs-esm": "7.0.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
