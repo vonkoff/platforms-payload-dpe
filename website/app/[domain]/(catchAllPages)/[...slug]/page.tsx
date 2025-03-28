@@ -2,10 +2,24 @@
 //showed how to make images for pages
 //INFO: Fontmapper was used here to get fonts. Look back at commits if want to see
 
-export default async function SitePostPage() {
+import { draftMode } from "next/headers";
+import { getSiteData, getPageForTenant } from "@/lib/fetchers";
+import { notFound } from "next/navigation";
+import { RenderHero } from "@/heros/RenderHero";
+import { RenderBlocks } from "@/blocks/RenderBlocks";
+
+export default async function DomainPage({ params }) {
+  const { domain, slug } = await params;
+  const tenant = await getSiteData(domain);
+  if (!tenant) notFound();
+  const { isEnabled: draft } = await draftMode();
+  const page = await getPageForTenant(tenant.id, slug, draft);
+  if (!page) notFound();
+  const { hero, layout } = page;
   return (
-    <>
-      <div>Fake</div>
-    </>
+    <article>
+      <RenderHero {...hero} />
+      <RenderBlocks blocks={layout} />
+    </article>
   );
 }

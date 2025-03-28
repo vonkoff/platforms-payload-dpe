@@ -1,5 +1,8 @@
+import { draftMode } from "next/headers";
 import { notFound } from "next/navigation";
-import { getSiteData } from "@/lib/fetchers";
+import { getSiteData, getPageForTenant } from "@/lib/fetchers";
+import { RenderHero } from "@/heros/RenderHero";
+import { RenderBlocks } from "@/blocks/RenderBlocks";
 
 // export async function generateStaticParams() {
 //   const allSites = await db.query.sites.findMany({
@@ -25,24 +28,44 @@ import { getSiteData } from "@/lib/fetchers";
 //   return allPaths;
 // }
 
-export default async function SiteHomePage(
-  props: {
-    params: Promise<{ domain: string }>;
-  }
-) {
-  const params = await props.params;
-  const domain = decodeURIComponent(params.domain);
-  const [data] = await Promise.all([getSiteData(domain)]);
-
-  if (!data) {
-    notFound();
-  }
-
+export default async function DomainHomePage({ params }) {
+  const { domain } = await params;
+  console.log(domain, "- domain page.tsx");
+  const tenant = await getSiteData(domain);
+  console.log(tenant, "- tenant page.tsx");
+  if (!tenant) notFound();
+  const { isEnabled: draft } = await draftMode();
+  const page = await getPageForTenant(tenant.id, "home", draft);
+  console.log(page, "- page found page.tsx");
+  if (!page) notFound();
+  const { hero, layout } = page;
   return (
-    <>
-      <div className="mb-20 w-full">
-        <h1>hi</h1>
-      </div>
-    </>
+    <article>
+      <RenderHero {...hero} />
+      <RenderBlocks blocks={layout} />
+    </article>
   );
 }
+
+//TODO: Needed?
+// export default async function SiteHomePage(
+//   props: {
+//     params: Promise<{ domain: string }>;
+//   }
+// ) {
+//   const params = await props.params;
+//   const domain = decodeURIComponent(params.domain);
+//   const [data] = await Promise.all([getSiteData(domain)]);
+//
+//   if (!data) {
+//     notFound();
+//   }
+//
+//   return (
+//     <>
+//       <div className="mb-20 w-full">
+//         <h1>hi</h1>
+//       </div>
+//     </>
+//   );
+// }

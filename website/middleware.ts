@@ -21,6 +21,9 @@ export default async function middleware(req: NextRequest) {
     .get("host")!
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
+  // Remove port number if present
+  hostname = hostname.split(":")[0];
+
   // special case for Vercel preview deployment URLs
   if (
     hostname.includes("---") &&

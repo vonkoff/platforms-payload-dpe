@@ -1,5 +1,7 @@
 export_code.fish
+export_code_website.fish
 export_code_trim.fish
+project-structure-and-code.md
 
 # Node.js and pnpm
 node_modules/
