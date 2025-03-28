@@ -216,9 +216,13 @@ export interface Tenant {
   id: string;
   name: string;
   /**
-   * Used for domain-based tenant handling
+   * Custom domain for the tenant, e.g., 'example.com'
    */
   domain?: string | null;
+  /**
+   * Subdomain for the tenant, e.g., 'my-tenant' for my-tenant.maindomain.com
+   */
+  subdomain?: string | null;
   /**
    * Used for url paths, example: /tenant-slug/page-slug
    */
@@ -2230,6 +2234,7 @@ export interface UsersSelect<T extends boolean = true> {
 export interface TenantsSelect<T extends boolean = true> {
   name?: T;
   domain?: T;
+  subdomain?: T;
   slug?: T;
   dealerId?: T;
   allowPublicRead?: T;

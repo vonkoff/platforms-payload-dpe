@@ -24,8 +24,18 @@ export const Tenants: CollectionConfig = {
       name: "domain",
       type: "text",
       admin: {
-        description: "Used for domain-based tenant handling",
+        description: "Custom domain for the tenant, e.g., 'example.com'",
       },
+    },
+    {
+      name: "subdomain",
+      type: "text",
+      admin: {
+        description:
+          "Subdomain for the tenant, e.g., 'my-tenant' for my-tenant.maindomain.com",
+      },
+      index: true,
+      unique: true,
     },
     {
       name: "slug",

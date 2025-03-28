@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { cal, inter } from "@/styles/fonts";
+import { inter } from "@/styles/fonts";
 import { Analytics } from "@vercel/analytics/react";
 import { Providers } from "./providers";
 import { Metadata } from "next";
@@ -37,7 +37,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(cal.variable, inter.variable)}>
+      {/* TODO: maybe has to be this later */}
+      {/* <body className={cn(cal.variable, inter.variable)}> */}
+      <body className={cn(inter.variable)}>
         <Providers>
           {children}
           <Analytics />

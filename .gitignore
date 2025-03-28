@@ -1,3 +1,6 @@
+export_code.fish
+export_code_trim.fish
+
 # Node.js and pnpm
 node_modules/
 .pnpm-store/
