@@ -21,6 +21,7 @@ export default async function middleware(req: NextRequest) {
     .get("host")!
     .replace(".localhost:3000", `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`);
 
+  //TODO: Make sure this is best?
   // Remove port number if present
   hostname = hostname.split(":")[0];
 

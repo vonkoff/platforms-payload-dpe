@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
-import { getSiteData } from "@/lib/fetchers";
 import { Metadata } from "next";
 import {
   Sheet,
@@ -9,7 +8,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Phone, Clock, MapPin, Menu } from "lucide-react";
+//TODO: Fix up use of SVG. Make it better
+import { Menu } from "lucide-react";
+import { getSiteData, getGeneralContactInfo } from "@/lib/fetchers";
 
 export async function generateMetadata(props: {
   params: Promise<{ domain: string }>;
@@ -68,23 +69,15 @@ export default async function SiteLayout(props: {
 
   const { children } = props;
 
+  //TODO: Why needed? Same before and after
+  console.log("domain BEFOREdecoded: ", params.domain, " - layout.tsx page");
   const domain = decodeURIComponent(params.domain);
+  console.log("domain decoded: ", domain, " - layout.tsx page");
   const data = await getSiteData(domain);
 
   if (!data) {
     notFound();
   }
-
-  // const generalDoc = await fetchGeneralDataForTenant(data.id);
-
-  // Optional: Redirect to custom domain if it exists
-  // if (
-  //   domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-  //   data.customDomain &&
-  //   process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS === "true"
-  // ) {
-  //   return redirect(`https://${data.customDomain}`);
-  // }
 
   if (
     domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
@@ -104,10 +97,8 @@ export default async function SiteLayout(props: {
     hours: "9:00AM - 7:00PM",
   };
 
-  // Extract dynamic contact info from General data
-  // TODO: Fixup fallback
-  // const contactInfo = getContactInfo(generalDoc, defaultContactInfo);
-  const contactInfo = defaultContactInfo;
+  const contactInfo =
+    (await getGeneralContactInfo(domain)) || defaultContactInfo;
 
   const navItems = [
     "New",
@@ -128,7 +119,6 @@ export default async function SiteLayout(props: {
             <div className="flex shrink-0 items-center lg:gap-2 xl:gap-4">
               {contactInfo.sales && (
                 <div className="flex items-center gap-1 whitespace-nowrap">
-                  <Phone size={14} />
                   <span className="font-semibold">Sales:</span>
                   <a
                     href={`tel:${contactInfo.sales}`}
@@ -140,7 +130,6 @@ export default async function SiteLayout(props: {
               )}
               {contactInfo.service && (
                 <div className="flex items-center gap-1 whitespace-nowrap">
-                  <Phone size={14} />
                   <span className="font-semibold">Service:</span>
                   <a
                     href={`tel:${contactInfo.service}`}
@@ -152,7 +141,6 @@ export default async function SiteLayout(props: {
               )}
               {contactInfo.parts && (
                 <div className="flex items-center gap-1 whitespace-nowrap">
-                  <Phone size={14} />
                   <span className="font-semibold">Parts:</span>
                   <a
                     href={`tel:${contactInfo.parts}`}
@@ -167,7 +155,6 @@ export default async function SiteLayout(props: {
             {/* Address with truncation if needed */}
             {contactInfo.address && (
               <div className="mx-4 flex shrink items-center gap-1 whitespace-nowrap">
-                <MapPin size={14} className="shrink-0" />
                 <address className="truncate not-italic">
                   {contactInfo.address}
                 </address>
@@ -177,7 +164,6 @@ export default async function SiteLayout(props: {
             {/* Hours */}
             {contactInfo.hours && (
               <div className="flex shrink-0 items-center gap-1 whitespace-nowrap">
-                <Clock size={14} className="shrink-0" />
                 <span>Today: {contactInfo.hours}</span>
               </div>
             )}

@@ -10,6 +10,7 @@ import { General } from "./collections/General";
 import { Posts } from "./collections/Posts";
 import { Media } from "./collections/Media";
 import { Categories } from "./collections/Categories";
+import { Header } from "./collections/Header";
 import Users from "./collections/Users";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seed } from "./seed";
@@ -69,6 +70,7 @@ export default buildConfig({
     Pages,
     Posts,
     Media,
+    Header,
     Categories,
     Users,
     Tenants,

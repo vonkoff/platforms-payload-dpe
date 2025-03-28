@@ -50,6 +50,9 @@ export const plugins: Plugin[] = [
       general: {
         isGlobal: true,
       },
+      header: {
+        isGlobal: true,
+      },
     },
     tenantField: {
       access: {
