@@ -8,9 +8,22 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-//TODO: Fix up use of SVG. Make it better
-import { Menu } from "lucide-react";
-import { getSiteData, getGeneralContactInfo } from "@/lib/fetchers";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import Link from "next/link";
+// TODO: Fix up use of SVG
+import { Menu, ChevronDown } from "lucide-react";
+import {
+  getSiteData,
+  getGeneralContactInfo,
+  getHeaderData,
+} from "@/lib/fetchers";
+import { cn } from "@/lib/utils";
 
 export async function generateMetadata(props: {
   params: Promise<{ domain: string }>;
@@ -51,28 +64,49 @@ export async function generateMetadata(props: {
     },
     icons: [logo],
     metadataBase: new URL(`https://${domain}`),
-    // Optional: Set canonical URL to custom domain if it exists
-    // ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
-    //   data.customDomain && {
-    //     alternates: {
-    //       canonical: `https://${data.customDomain}`,
-    //     },
-    //   }),
   };
 }
+
+// Helper function to resolve link URL
+const resolveLinkUrl = (link: any) => {
+  if (!link) return "#";
+
+  if (link.type === "custom" && link.url) {
+    return link.url;
+  }
+
+  if (link.type === "reference" && link.reference) {
+    const { relationTo, value } = link.reference;
+    // For references, you'd typically generate a URL based on the collection type and ID
+    // This is a simplified version - adjust according to your routing structure
+    return `/${relationTo}/${typeof value === "string" ? value : value.id || ""}`;
+  }
+
+  return "#";
+};
+
+// NavigationMenuLink component
+const NavMenuLink = ({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof Link>) => (
+  <Link
+    className={cn(
+      //TODO: hover:text-blue-600 is how color of link changes
+      "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-100 hover:text-blue-600 focus:bg-gray-100 focus:text-blue-600",
+      className,
+    )}
+    {...props}
+  />
+);
 
 export default async function SiteLayout(props: {
   params: Promise<{ domain: string }>;
   children: ReactNode;
 }) {
   const params = await props.params;
-
   const { children } = props;
-
-  //TODO: Why needed? Same before and after
-  console.log("domain BEFOREdecoded: ", params.domain, " - layout.tsx page");
   const domain = decodeURIComponent(params.domain);
-  console.log("domain decoded: ", domain, " - layout.tsx page");
   const data = await getSiteData(domain);
 
   if (!data) {
@@ -87,8 +121,7 @@ export default async function SiteLayout(props: {
     return redirect(`https://${data.domain}`);
   }
 
-  // Fallback defaults
-  // const defaultContactInfo: ContactInfo = {
+  // Fetch contact info
   const defaultContactInfo = {
     sales: "959-209-4911",
     service: "959-209-4911",
@@ -100,14 +133,9 @@ export default async function SiteLayout(props: {
   const contactInfo =
     (await getGeneralContactInfo(domain)) || defaultContactInfo;
 
-  const navItems = [
-    "New",
-    "Pre-Owned",
-    "Custom Order",
-    "Service & Parts",
-    "Finance",
-    "About Us",
-  ];
+  // Fetch header data
+  const headerData = await getHeaderData(domain);
+  const navItems = headerData?.navItems || [];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -178,17 +206,48 @@ export default async function SiteLayout(props: {
             {/* Logo Placeholder */}
             <div className="text-2xl font-bold text-gray-800">DEALERSHIP</div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden items-center gap-8 lg:flex">
-              {navItems.map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="whitespace-nowrap font-medium text-gray-600 hover:text-blue-600"
-                >
-                  {item}
-                </a>
-              ))}
+            {/* Desktop Navigation using shadcn NavigationMenu */}
+            <div className="hidden lg:block">
+              <NavigationMenu>
+                <NavigationMenuList className="flex items-center gap-6">
+                  {navItems.map((item: any) => (
+                    <NavigationMenuItem key={item.id || item.link.label}>
+                      {item.hasDropdown ? (
+                        <>
+                          <NavigationMenuTrigger className="font-medium text-gray-600 hover:text-blue-600">
+                            {item.link.label}
+                          </NavigationMenuTrigger>
+                          <NavigationMenuContent>
+                            <ul className="grid w-[200px] gap-2 p-4">
+                              {item.dropdownItems?.map((dropdownItem: any) => (
+                                <li
+                                  key={
+                                    dropdownItem.id || dropdownItem.link.label
+                                  }
+                                >
+                                  <NavMenuLink
+                                    href={resolveLinkUrl(dropdownItem.link)}
+                                  >
+                                    {dropdownItem.link.label}
+                                  </NavMenuLink>
+                                </li>
+                              ))}
+                            </ul>
+                          </NavigationMenuContent>
+                        </>
+                      ) : (
+                        <Link
+                          href={resolveLinkUrl(item.link)}
+                          className="whitespace-nowrap font-medium text-gray-600 hover:text-blue-600"
+                          target={item.link.newTab ? "_blank" : "_self"}
+                        >
+                          {item.link.label}
+                        </Link>
+                      )}
+                    </NavigationMenuItem>
+                  ))}
+                </NavigationMenuList>
+              </NavigationMenu>
             </div>
 
             {/* Mobile Menu Button */}
@@ -201,14 +260,41 @@ export default async function SiteLayout(props: {
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 flex flex-col gap-4">
-                  {navItems.map((item) => (
-                    <a
-                      key={item}
-                      href="#"
-                      className="py-2 text-lg font-medium text-gray-600 hover:text-blue-600"
-                    >
-                      {item}
-                    </a>
+                  {navItems.map((item: any) => (
+                    <div key={item.id || item.link.label}>
+                      {item.hasDropdown ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between py-2">
+                            <span className="text-lg font-medium text-gray-600">
+                              {item.link.label}
+                            </span>
+                            <ChevronDown className="h-4 w-4" />
+                          </div>
+                          <div className="space-y-2 pl-4">
+                            {item.dropdownItems?.map((dropdownItem: any) => (
+                              <Link
+                                key={dropdownItem.id || dropdownItem.link.label}
+                                href={resolveLinkUrl(dropdownItem.link)}
+                                className="block py-2 text-base text-gray-600 hover:text-blue-600"
+                                target={
+                                  dropdownItem.link.newTab ? "_blank" : "_self"
+                                }
+                              >
+                                {dropdownItem.link.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <Link
+                          href={resolveLinkUrl(item.link)}
+                          className="block py-2 text-lg font-medium text-gray-600 hover:text-blue-600"
+                          target={item.link.newTab ? "_blank" : "_self"}
+                        >
+                          {item.link.label}
+                        </Link>
+                      )}
+                    </div>
                   ))}
                 </div>
               </SheetContent>
@@ -236,11 +322,15 @@ export default async function SiteLayout(props: {
             <div>
               <h3 className="mb-4 text-lg font-semibold">Quick Links</h3>
               <ul className="space-y-2">
-                {navItems.map((item) => (
-                  <li key={item}>
-                    <a href="#" className="text-gray-300 hover:text-white">
-                      {item}
-                    </a>
+                {navItems.slice(0, 6).map((item: any) => (
+                  <li key={item.id || item.link.label}>
+                    <Link
+                      href={resolveLinkUrl(item.link)}
+                      className="text-gray-300 hover:text-white"
+                      target={item.link.newTab ? "_blank" : "_self"}
+                    >
+                      {item.link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

@@ -20,6 +20,29 @@ export const Header: CollectionConfig = {
         link({
           appearances: false,
         }),
+        {
+          name: "hasDropdown",
+          type: "checkbox",
+          label: "Enable Dropdown Menu",
+          defaultValue: false,
+        },
+        {
+          name: "dropdownItems",
+          type: "array",
+          label: "Dropdown Menu Items",
+          fields: [
+            link({
+              appearances: false,
+            }),
+          ],
+          admin: {
+            condition: (data, siblingData) => siblingData?.hasDropdown === true,
+            initCollapsed: true,
+            components: {
+              RowLabel: "/components/RowLabel#RowLabel",
+            },
+          },
+        },
       ],
       maxRows: 6,
       admin: {

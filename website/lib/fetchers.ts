@@ -1,7 +1,32 @@
 import { unstable_cache } from "next/cache";
 import { getPayload } from "payload";
 import config from "@payload-config";
-import { General } from "@/payload-types";
+
+export async function getHeaderData(domain: string) {
+  const payload = await getPayload({ config });
+  const site = await getSiteData(domain);
+
+  if (!site) return null;
+
+  return await unstable_cache(
+    async () => {
+      const headerQuery = await payload.find({
+        collection: "header",
+        limit: 1,
+        where: {
+          tenant: { equals: site.id },
+        },
+      });
+
+      return headerQuery.docs[0] || null;
+    },
+    [`header-${site.id}`],
+    {
+      revalidate: 900,
+      tags: [`header-${site.id}`],
+    },
+  )();
+}
 
 export async function getGeneralContactInfo(domain: string) {
   const payload = await getPayload({ config });
@@ -19,7 +44,7 @@ export async function getGeneralContactInfo(domain: string) {
         },
       });
 
-      const generalDoc = generalQuery.docs[0] as General | null;
+      const generalDoc = generalQuery.docs[0] || null;
       if (!generalDoc) return null;
 
       // Extract contact info from the general document

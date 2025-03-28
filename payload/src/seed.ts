@@ -891,8 +891,84 @@ export const seed: NonNullable<Config["onInit"]> = async (
             {
               link: {
                 type: "custom",
-                label: "Home",
-                url: "/",
+                label: "Inventory",
+                url: "/inventory",
+              },
+              hasDropdown: true,
+              dropdownItems: [
+                {
+                  link: {
+                    type: "custom",
+                    label: "New Vehicles",
+                    url: "/inventory/new",
+                  },
+                },
+                {
+                  link: {
+                    type: "custom",
+                    label: "Pre-Owned Vehicles",
+                    url: "/inventory/pre-owned",
+                  },
+                },
+                {
+                  link: {
+                    type: "custom",
+                    label: "Vehicles Under $20K",
+                    url: "/inventory/under-20k",
+                  },
+                },
+                {
+                  link: {
+                    type: "custom",
+                    label: "Special Offers",
+                    url: "/inventory/special-offers",
+                  },
+                },
+              ],
+            },
+            {
+              link: {
+                type: "custom",
+                label: "Services",
+                url: "/services",
+              },
+              hasDropdown: true,
+              dropdownItems: [
+                {
+                  link: {
+                    type: "custom",
+                    label: "Maintenance",
+                    url: "/services/maintenance",
+                  },
+                },
+                {
+                  link: {
+                    type: "custom",
+                    label: "Parts",
+                    url: "/services/parts",
+                  },
+                },
+                {
+                  link: {
+                    type: "custom",
+                    label: "Collision Center",
+                    url: "/services/collision-center",
+                  },
+                },
+              ],
+            },
+            {
+              link: {
+                type: "custom",
+                label: "Financing",
+                url: "/financing",
+              },
+            },
+            {
+              link: {
+                type: "custom",
+                label: "About Us",
+                url: "/about",
               },
             },
             {
