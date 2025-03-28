@@ -25,11 +25,12 @@ import { getSiteData } from "@/lib/fetchers";
 //   return allPaths;
 // }
 
-export default async function SiteHomePage({
-  params,
-}: {
-  params: { domain: string };
-}) {
+export default async function SiteHomePage(
+  props: {
+    params: Promise<{ domain: string }>;
+  }
+) {
+  const params = await props.params;
   const domain = decodeURIComponent(params.domain);
   const [data] = await Promise.all([getSiteData(domain)]);
 

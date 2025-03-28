@@ -20,13 +20,13 @@ module.exports = {
       { hostname: "illustrations.popsy.co" },
     ],
   },
-  webpack: (config) => {
-    config.resolve.fallback = {
-      //WARNING: Weird errors come about if we don't add this
-      //TODO: Fix and see why it happens
-      "mongodb-client-encryption": false,
-      aws4: false,
-    };
-    return config;
-  },
+  // webpack: (config) => {
+  //   config.resolve.fallback = {
+  //     //WARNING: Weird errors come about if we don't add this
+  //     //TODO: Fix and see why it happens
+  //     "mongodb-client-encryption": false,
+  //     aws4: false,
+  //   };
+  //   return config;
+  // },
 };

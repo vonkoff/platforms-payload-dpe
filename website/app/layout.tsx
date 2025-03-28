@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import { inter } from "@/styles/fonts";
 import { Analytics } from "@vercel/analytics/react";
-import { Providers } from "./providers";
+// import { Providers } from "./providers";
 import { Metadata } from "next";
 import { cn } from "@/lib/utils";
 
@@ -40,10 +40,8 @@ export default function RootLayout({
       {/* TODO: maybe has to be this later */}
       {/* <body className={cn(cal.variable, inter.variable)}> */}
       <body className={cn(inter.variable)}>
-        <Providers>
-          {children}
-          <Analytics />
-        </Providers>
+        {children}
+        <Analytics />
       </body>
     </html>
   );
