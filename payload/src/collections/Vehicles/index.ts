@@ -1071,7 +1071,10 @@ export const Vehicles: CollectionConfig = {
         } catch (error) {
           console.error("Error listing images:", error);
           return Response.json(
-            { error: "Internal server error", details: error.message },
+            {
+              error: "Internal server error",
+              details: error instanceof Error ? error.message : String(error),
+            },
             { status: 500 },
           );
         }
