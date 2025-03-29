@@ -1,4 +1,4 @@
-import type { Page } from "@/types/payload-types";
+import type { Page } from "@/payload-types";
 
 import React from "react";
 
