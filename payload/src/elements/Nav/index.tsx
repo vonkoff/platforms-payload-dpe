@@ -11,6 +11,7 @@ import { RenderServerComponent } from "@payloadcms/ui/elements/RenderServerCompo
 import { Logout } from "@payloadcms/ui";
 import { NavClient } from "./index.client";
 import { NavHamburger } from "./NavHamburger";
+import type { User } from "payload";
 
 export const baseClass = "nav";
 
@@ -65,7 +66,8 @@ export const Nav: FC<ServerProps> = async (props) => {
     i18n,
   );
 
-  const navPreferences = await getNavPrefs({ payload, user });
+  //TODO: LOOK INTO FIXING AND NOT USEING "as USER"
+  const navPreferences = await getNavPrefs({ payload, user: user as User });
 
   const LogoutComponent = RenderServerComponent({
     clientProps: {

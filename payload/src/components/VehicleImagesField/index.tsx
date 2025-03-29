@@ -95,7 +95,11 @@ export const VehicleImagesField: React.FC<
       setImages(sortedImageList);
     } catch (error) {
       console.error("Error fetching images:", error);
-      setErrorMessage(error.message || "Error loading images");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : String(error) || "Error loading images",
+      );
     }
     setIsLoading(false);
   };
@@ -129,7 +133,11 @@ export const VehicleImagesField: React.FC<
       await fetchImages();
     } catch (error) {
       console.error("Error uploading image:", error);
-      setErrorMessage(error.message || "Error uploading image");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : String(error) || "Error uploading image",
+      );
     }
   };
 
@@ -155,7 +163,11 @@ export const VehicleImagesField: React.FC<
       await fetchImages();
     } catch (error) {
       console.error("Error deleting image:", error);
-      setErrorMessage(error.message || "Error deleting image");
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : String(error) || "Error deleting image",
+      );
     }
   };
 

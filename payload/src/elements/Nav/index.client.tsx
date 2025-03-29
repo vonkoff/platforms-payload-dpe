@@ -12,6 +12,7 @@ import LinkWithDefault from "next/link";
 import { NavPreferences } from "payload";
 import { FC, Fragment } from "react";
 import { getNavIcon } from "./navIconMap";
+import { getStringFromLabel } from "@/utilities/getStringFromLabel";
 
 type Props = {
   groups: NavGroupType[];
@@ -62,6 +63,8 @@ export const NavClient: FC<Props> = ({ groups, navPreferences }) => {
 
               const Icon = getNavIcon(slug);
 
+              const labelString = getStringFromLabel(label);
+
               return (
                 <LinkElement
                   className={[
@@ -79,7 +82,9 @@ export const NavClient: FC<Props> = ({ groups, navPreferences }) => {
                     <div className={`${baseClass}__link-indicator`} />
                   )}
                   {Icon && <Icon className={`${baseClass}__icon`} />}
-                  <span className={`${baseClass}__link-label`}>{label}</span>
+                  <span className={`${baseClass}__link-label`}>
+                    {labelString}
+                  </span>
                 </LinkElement>
               );
             })}

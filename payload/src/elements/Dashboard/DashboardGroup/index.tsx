@@ -3,6 +3,7 @@ import { FC } from "react";
 import { Card } from "@payloadcms/ui";
 import Link from "next/link";
 import { BasePayload, CollectionSlug, StaticLabel } from "payload";
+import { getStringFromLabel } from "@/utilities/getStringFromLabel";
 
 import "./index.scss";
 import { adminGroups } from "@/utilities/adminGroups";
@@ -36,7 +37,7 @@ export const DashboardGroup: FC<Props> = async ({
   };
 
   const isFeaturedGroup = groupLabel === adminGroups.featured;
-  let counts: Record<string, number>;
+  let counts: Record<string, number> = {};
 
   if (isFeaturedGroup) {
     counts = await getCounts();
@@ -46,36 +47,41 @@ export const DashboardGroup: FC<Props> = async ({
     <div className="dashboard__group">
       <p className="dashboard__label">{groupLabel}</p>
       <ul className="dashboard__card-list">
-        {entities.map(({ slug, type, label }, entityIndex) => (
-          <li key={entityIndex}>
-            {isFeaturedGroup ? (
-              <FeatureCard
-                title={label}
-                href={formatAdminURL({
-                  adminRoute,
-                  path:
-                    type === EntityType.collection
-                      ? `/collections/${slug}`
-                      : `/globals/${slug}`,
-                })}
-                Link={Link}
-                count={counts[slug] ?? 0}
-              />
-            ) : (
-              <Card
-                title={label}
-                href={formatAdminURL({
-                  adminRoute,
-                  path:
-                    type === EntityType.collection
-                      ? `/collections/${slug}`
-                      : `/globals/${slug}`,
-                })}
-                Link={Link}
-              />
-            )}
-          </li>
-        ))}
+        {entities.map(({ slug, type, label }, entityIndex) => {
+          // Convert StaticLabel to string
+          const titleString = getStringFromLabel(label);
+
+          return (
+            <li key={entityIndex}>
+              {isFeaturedGroup ? (
+                <FeatureCard
+                  title={titleString}
+                  href={formatAdminURL({
+                    adminRoute,
+                    path:
+                      type === EntityType.collection
+                        ? `/collections/${slug}`
+                        : `/globals/${slug}`,
+                  })}
+                  Link={Link}
+                  count={counts[slug] ?? 0}
+                />
+              ) : (
+                <Card
+                  title={titleString}
+                  href={formatAdminURL({
+                    adminRoute,
+                    path:
+                      type === EntityType.collection
+                        ? `/collections/${slug}`
+                        : `/globals/${slug}`,
+                  })}
+                  Link={Link}
+                />
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
