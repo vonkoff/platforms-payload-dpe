@@ -8,15 +8,10 @@ import { notFound } from "next/navigation";
 import { RenderHero } from "@/heros/RenderHero";
 import { RenderBlocks } from "@/blocks/RenderBlocks";
 
-interface DomainPageParams {
-  params: {
-    domain: string;
-    slug: string;
-  };
-}
+type Params = Promise<{ slug: string; domain: string }>;
 
-export default async function DomainPage({ params }: DomainPageParams) {
-  const { domain, slug } = params;
+export default async function Page(props: { params: Params }) {
+  const { domain, slug } = await props.params;
 
   const tenant = await getSiteData(domain);
   if (!tenant) notFound();
