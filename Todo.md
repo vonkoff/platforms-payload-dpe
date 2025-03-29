@@ -1,1 +1,2 @@
 - Should I remove ovveride at the top of the package.json? If i deploy to payload by oing inside the payload doesn't that mean I am installing different tpyes from what I test for?
+- Get rid of implicit any alloance in tsconfig.json of payload application
