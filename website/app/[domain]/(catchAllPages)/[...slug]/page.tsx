@@ -10,7 +10,7 @@ import { RenderBlocks } from "@/blocks/RenderBlocks";
 
 type Params = Promise<{ slug: string; domain: string }>;
 
-export default async function Page(props: { params: Params }) {
+export default async function DomainPage(props: { params: Params }) {
   const { domain, slug } = await props.params;
 
   const tenant = await getSiteData(domain);

@@ -27,9 +27,13 @@ import { RenderBlocks } from "@/blocks/RenderBlocks";
 //
 //   return allPaths;
 // }
+//
+//
 
-export default async function DomainHomePage({ params }) {
-  const { domain } = await params;
+type Params = Promise<{ slug: string; domain: string }>;
+
+export default async function DomainHomePage(props: { params: Params }) {
+  const { domain } = await props.params;
   console.log(domain, "- domain page.tsx");
   const tenant = await getSiteData(domain);
   console.log(tenant, "- tenant page.tsx");
