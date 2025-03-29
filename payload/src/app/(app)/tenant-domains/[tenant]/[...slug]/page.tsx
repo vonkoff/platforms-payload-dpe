@@ -4,11 +4,20 @@ import configPromise from "@payload-config";
 import { headers as getHeaders } from "next/headers";
 import { RenderPage } from "../../../../components/RenderPage";
 
+type PageParams = Promise<{ tenant: string; slug?: string[] }>;
+
 export default async function Page(props: {
-  params: { tenant: string; slug?: string[] };
+  //WARNING: USED BEFORE
+  // params: { tenant: string; slug?: string[] };
+  params: PageParams;
 }) {
+  //WARNING: USED BEFORE
   // Resolve route parameters as recommended by Next.js:
-  const params = await Promise.resolve(props.params);
+  // const params = await Promise.resolve(props.params);
+
+  //INFO: Changed to this below. Different from multi-tenant example because getting error
+  const params = await props.params;
+
   let { tenant, slug: slugArray } = params;
   console.log("[Tenant-Domains] Original route parameters:", {
     tenant,
