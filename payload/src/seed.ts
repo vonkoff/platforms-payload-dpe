@@ -1,4 +1,5 @@
 import { Config } from "payload";
+import { Tenant, User, Category, Post, Page } from "./payload-types";
 
 export const seed: NonNullable<Config["onInit"]> = async (
   payload,
@@ -7,9 +8,13 @@ export const seed: NonNullable<Config["onInit"]> = async (
     payload.logger.info("Starting database seeding process...");
 
     // Helper function to safely execute operations with retries
-    const safeExecute = async (operation, name, maxRetries = 3) => {
+    const safeExecute = async <T>(
+      operation: () => Promise<T | null>,
+      name: string,
+      maxRetries = 3,
+    ): Promise<T | null> => {
       let retries = 0;
-      let result = null;
+      let result: T | null = null;
 
       while (retries < maxRetries) {
         try {
@@ -19,7 +24,8 @@ export const seed: NonNullable<Config["onInit"]> = async (
           // Add a small delay to prevent database contention
           await new Promise((resolve) => setTimeout(resolve, 500));
           return result;
-        } catch (error) {
+        } catch (error: any) {
+          // Explicitly typed as any to access properties
           retries++;
           const waitTime = 1000 * retries; // Exponential backoff
 
@@ -72,7 +78,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
                     payload.logger.info(
                       `Found existing ${collection} with slug "${slug}" - content was created despite revalidation error`,
                     );
-                    return existing.docs[0];
+                    return existing.docs[0] as T;
                   }
                 } catch (findError) {
                   // If find fails, continue with retries
@@ -87,13 +93,14 @@ export const seed: NonNullable<Config["onInit"]> = async (
             continue;
           } else if (
             name.includes("general info") &&
+            error.message &&
             error.message.includes("Weekly Hours")
           ) {
             // Try alternative time format for department hours
             payload.logger.warn(
               `Time format error in ${name} - will try alternative format`,
             );
-            return { id: "hours-format-error" };
+            return { id: "hours-format-error" } as unknown as T;
           } else {
             payload.logger.error(
               `Error in ${name}: ${error.message}. Retrying in ${waitTime}ms... (${retries}/${maxRetries})`,
@@ -132,11 +139,11 @@ export const seed: NonNullable<Config["onInit"]> = async (
     });
 
     const existingDealerIds = existingTenants.docs.map(
-      (tenant) => tenant.dealerId,
+      (tenant: any) => tenant.dealerId,
     );
 
     // Create tenants sequentially with better error handling
-    const createdTenants = [];
+    const createdTenants: Tenant[] = [];
     for (const td of tenantData) {
       // Skip if tenant already exists
       if (existingDealerIds.includes(td.dealerId)) {
@@ -146,16 +153,16 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
         // Find the existing tenant and add it to our array
         const existingTenant = existingTenants.docs.find(
-          (t) => t.dealerId === td.dealerId,
+          (t: any) => t.dealerId === td.dealerId,
         );
         if (existingTenant) {
-          createdTenants.push(existingTenant);
+          createdTenants.push(existingTenant as Tenant);
         }
         continue;
       }
 
-      const tenant = await safeExecute(async () => {
-        return await payload.create({
+      const tenant = await safeExecute<Tenant>(async () => {
+        return (await payload.create({
           collection: "tenants",
           data: {
             name: td.name,
@@ -164,7 +171,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
             subdomain: td.dealerId,
             dealerId: td.dealerId,
           },
-        });
+        })) as Tenant;
       }, `Creating tenant: ${td.name}`);
 
       if (tenant) {
@@ -181,7 +188,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
     }
 
     // Create super-admin users with safe execution
-    await safeExecute(async () => {
+    await safeExecute<User>(async () => {
       const existingUsers = await payload.find({
         collection: "users",
         where: {
@@ -193,10 +200,10 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
       if (existingUsers.docs && existingUsers.docs.length > 0) {
         payload.logger.info("Demo user already exists, skipping...");
-        return existingUsers.docs[0];
+        return existingUsers.docs[0] as User;
       }
 
-      return await payload.create({
+      return (await payload.create({
         collection: "users",
         data: {
           email: "demo@payloadcms.com",
@@ -204,10 +211,10 @@ export const seed: NonNullable<Config["onInit"]> = async (
           roles: ["super-admin"],
           username: "demo",
         },
-      });
+      })) as User;
     }, "Creating demo user");
 
-    await safeExecute(async () => {
+    await safeExecute<User>(async () => {
       const existingUsers = await payload.find({
         collection: "users",
         where: {
@@ -219,10 +226,10 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
       if (existingUsers.docs && existingUsers.docs.length > 0) {
         payload.logger.info("SFTP user already exists, skipping...");
-        return existingUsers.docs[0];
+        return existingUsers.docs[0] as User;
       }
 
-      return await payload.create({
+      return (await payload.create({
         collection: "users",
         data: {
           email: "sftp@dealerproedge.com",
@@ -230,14 +237,14 @@ export const seed: NonNullable<Config["onInit"]> = async (
           roles: ["super-admin"],
           username: "sftp",
         },
-      });
+      })) as User;
     }, "Creating SFTP user");
 
     // Create tenant-admin users sequentially
     for (const tenant of createdTenants) {
       const userEmail = `admin@${tenant.dealerId}.payloadcms.com`;
 
-      await safeExecute(async () => {
+      await safeExecute<User>(async () => {
         const existingUsers = await payload.find({
           collection: "users",
           where: {
@@ -249,10 +256,10 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
         if (existingUsers.docs && existingUsers.docs.length > 0) {
           payload.logger.info(`User ${userEmail} already exists, skipping...`);
-          return existingUsers.docs[0];
+          return existingUsers.docs[0] as User;
         }
 
-        return await payload.create({
+        return (await payload.create({
           collection: "users",
           data: {
             email: userEmail,
@@ -265,12 +272,12 @@ export const seed: NonNullable<Config["onInit"]> = async (
             ],
             username: tenant.dealerId,
           },
-        });
+        })) as User;
       }, `Creating tenant-admin user for ${tenant.name}`);
     }
 
     // Create multi-admin user
-    await safeExecute(async () => {
+    await safeExecute<User>(async () => {
       const existingUsers = await payload.find({
         collection: "users",
         where: {
@@ -282,10 +289,10 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
       if (existingUsers.docs && existingUsers.docs.length > 0) {
         payload.logger.info("Multi-admin user already exists, skipping...");
-        return existingUsers.docs[0];
+        return existingUsers.docs[0] as User;
       }
 
-      return await payload.create({
+      return (await payload.create({
         collection: "users",
         data: {
           email: "multi-admin@payloadcms.com",
@@ -296,7 +303,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
           })),
           username: "multi-admin",
         },
-      });
+      })) as User;
     }, "Creating multi-admin user");
 
     // Get the blasiusattleboro tenant for creating content
@@ -316,8 +323,8 @@ export const seed: NonNullable<Config["onInit"]> = async (
     // Create categories sequentially
     payload.logger.info(`— Creating categories...`);
 
-    const technology = await safeExecute(async () => {
-      return await payload.create({
+    const technology = await safeExecute<Category>(async () => {
+      return (await payload.create({
         collection: "categories",
         data: {
           title: "Technology",
@@ -328,11 +335,11 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as Category;
     }, "Creating Technology category");
 
-    const news = await safeExecute(async () => {
-      return await payload.create({
+    const news = await safeExecute<Category>(async () => {
+      return (await payload.create({
         collection: "categories",
         data: {
           title: "News",
@@ -343,11 +350,11 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as Category;
     }, "Creating News category");
 
-    const finance = await safeExecute(async () => {
-      return await payload.create({
+    const finance = await safeExecute<Category>(async () => {
+      return (await payload.create({
         collection: "categories",
         data: {
           title: "Finance",
@@ -358,11 +365,11 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as Category;
     }, "Creating Finance category");
 
-    const design = await safeExecute(async () => {
-      return await payload.create({
+    const design = await safeExecute<Category>(async () => {
+      return (await payload.create({
         collection: "categories",
         data: {
           title: "Design",
@@ -373,11 +380,11 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as Category;
     }, "Creating Design category");
 
-    const software = await safeExecute(async () => {
-      return await payload.create({
+    const software = await safeExecute<Category>(async () => {
+      return (await payload.create({
         collection: "categories",
         data: {
           title: "Software",
@@ -388,11 +395,11 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as Category;
     }, "Creating Software category");
 
-    const engineering = await safeExecute(async () => {
-      return await payload.create({
+    const engineering = await safeExecute<Category>(async () => {
+      return (await payload.create({
         collection: "categories",
         data: {
           title: "Engineering",
@@ -403,12 +410,12 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as Category;
     }, "Creating Engineering category");
 
     // Create demo author
     payload.logger.info(`— Creating demo author...`);
-    const demoAuthor = await safeExecute(async () => {
+    const demoAuthor = await safeExecute<User>(async () => {
       const existingAuthors = await payload.find({
         collection: "users",
         where: {
@@ -420,10 +427,10 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
       if (existingAuthors.docs && existingAuthors.docs.length > 0) {
         payload.logger.info("Demo author already exists, reusing...");
-        return existingAuthors.docs[0];
+        return existingAuthors.docs[0] as User;
       }
 
-      return await payload.create({
+      return (await payload.create({
         collection: "users",
         data: {
           email: "demo-author@example.com",
@@ -435,14 +442,16 @@ export const seed: NonNullable<Config["onInit"]> = async (
             },
           ],
         },
-      });
+      })) as User;
     }, "Creating demo author");
 
     // Create posts sequentially
     payload.logger.info(`— Creating posts...`);
 
     // Try a different approach by explicitly ignoring revalidation errors
-    const createPostWithoutRevalidation = async (data) => {
+    const createPostWithoutRevalidation = async (
+      data: any,
+    ): Promise<Post | null> => {
       try {
         // First check if a post with this slug already exists for this tenant
         const existing = await payload.find({
@@ -459,19 +468,20 @@ export const seed: NonNullable<Config["onInit"]> = async (
           payload.logger.info(
             `Post with slug "${data.slug}" already exists, skipping...`,
           );
-          return existing.docs[0];
+          return existing.docs[0] as Post;
         }
 
         // If it doesn't exist, create it with revalidation disabled
-        return await payload.create({
+        return (await payload.create({
           collection: "posts",
           data,
           context: {
             disableRevalidate: true,
             overrideAccess: true,
           },
-        });
-      } catch (error) {
+        })) as Post;
+      } catch (error: any) {
+        // Explicitly typed as any
         // For revalidation errors, continue anyway
         if (
           error.message &&
@@ -498,7 +508,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
               payload.logger.info(
                 `Post "${data.slug}" was created successfully despite revalidation error`,
               );
-              return created.docs[0];
+              return created.docs[0] as Post;
             }
           } catch (findError) {
             // If find fails, throw the original error
@@ -511,7 +521,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
     };
 
     // Create Post 1
-    const post1 = await safeExecute(async () => {
+    const post1 = await safeExecute<Post | null>(async () => {
       return await createPostWithoutRevalidation({
         tenant: attleboroTenant.id,
         title: "Digital Horizons: A Glimpse into Tomorrow",
@@ -557,7 +567,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
     }, "Creating post 1");
 
     // Create Post 2
-    const post2 = await safeExecute(async () => {
+    const post2 = await safeExecute<Post | null>(async () => {
       return await createPostWithoutRevalidation({
         tenant: attleboroTenant.id,
         title: "Global Gaze: Beyond the Headlines",
@@ -603,7 +613,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
     }, "Creating post 2");
 
     // Create Post 3
-    const post3 = await safeExecute(async () => {
+    const post3 = await safeExecute<Post | null>(async () => {
       return await createPostWithoutRevalidation({
         tenant: attleboroTenant.id,
         title: "Dollar and Sense: The Financial Forecast",
@@ -649,7 +659,9 @@ export const seed: NonNullable<Config["onInit"]> = async (
     }, "Creating post 3");
 
     // Similar approach for pages
-    const createPageWithoutRevalidation = async (data) => {
+    const createPageWithoutRevalidation = async (
+      data: any,
+    ): Promise<Page | null> => {
       try {
         // First check if a page with this slug already exists for this tenant
         const existing = await payload.find({
@@ -666,19 +678,20 @@ export const seed: NonNullable<Config["onInit"]> = async (
           payload.logger.info(
             `Page with slug "${data.slug}" already exists, skipping...`,
           );
-          return existing.docs[0];
+          return existing.docs[0] as Page;
         }
 
         // If it doesn't exist, create it with revalidation disabled
-        return await payload.create({
+        return (await payload.create({
           collection: "pages",
           data,
           context: {
             disableRevalidate: true,
             overrideAccess: true,
           },
-        });
-      } catch (error) {
+        })) as Page;
+      } catch (error: any) {
+        // Explicitly typed as any
         // For revalidation errors, continue anyway
         if (
           error.message &&
@@ -705,7 +718,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
               payload.logger.info(
                 `Page "${data.slug}" was created successfully despite revalidation error`,
               );
-              return created.docs[0];
+              return created.docs[0] as Page;
             }
           } catch (findError) {
             // If find fails, throw the original error
@@ -719,7 +732,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
     // Create Home Page
     payload.logger.info(`— Creating home page...`);
-    const homePage = await safeExecute(async () => {
+    const homePage = await safeExecute<Page | null>(async () => {
       return await createPageWithoutRevalidation({
         tenant: attleboroTenant.id,
         slug: "home",
@@ -808,7 +821,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
 
     // Create Contact Page
     payload.logger.info(`— Creating contact page...`);
-    const contactPage = await safeExecute(async () => {
+    const contactPage = await safeExecute<Page | null>(async () => {
       return await createPageWithoutRevalidation({
         tenant: attleboroTenant.id,
         slug: "contact",
@@ -1033,7 +1046,7 @@ export const seed: NonNullable<Config["onInit"]> = async (
     }, "Creating general info");
 
     payload.logger.info(`Seeding completed successfully!`);
-  } catch (error) {
+  } catch (error: any) {
     payload.logger.error(`Fatal error during seeding: ${error.message}`);
     payload.logger.error(error.stack);
   }
