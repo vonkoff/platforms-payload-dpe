@@ -1,3 +1,10 @@
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  //INFO: Fake holder
+  return NextResponse.json({ response: "ok" });
+}
+
 // import { Configuration, OpenAIApi } from "openai-edge";
 // import { OpenAIStream, StreamingTextResponse } from "ai";
 // import { kv } from "@vercel/kv";
