@@ -53,6 +53,7 @@ export const Header: CollectionConfig = {
       },
     },
   ],
+  //TODO: Fix?
   // hooks: {
   //   afterChange: [revalidateHeader],
   // },

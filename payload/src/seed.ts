@@ -1,5 +1,5 @@
 import { Config } from "payload";
-import { Tenant, User, Category, Post, Page } from "./payload-types";
+import { Tenant, User, Category, Post, Page } from "@/payload-types";
 
 export const seed: NonNullable<Config["onInit"]> = async (
   payload,
