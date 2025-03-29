@@ -8,8 +8,11 @@ import { notFound } from "next/navigation";
 import { RenderHero } from "@/heros/RenderHero";
 import { RenderBlocks } from "@/blocks/RenderBlocks";
 
-export default async function DomainPage({ params }) {
-  const { domain, slug } = await params;
+type Params = Promise<{ slug: string; domain: string }>;
+
+export default async function DomainPage(props: { params: Params }) {
+  const { domain, slug } = await props.params;
+
   const tenant = await getSiteData(domain);
   if (!tenant) notFound();
   const { isEnabled: draft } = await draftMode();
