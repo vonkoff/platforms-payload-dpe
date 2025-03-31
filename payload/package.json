@@ -25,6 +25,8 @@
   "dependencies": {
     "lucide-react": "^0.479.0",
     "@aws-sdk/client-s3": "^3.775.0",
+    "@payloadcms/storage-s3": "3.31.0",
+    "@payloadcms/email-resend": "3.31.0",
     "@payloadcms/db-mongodb": "3.31.0",
     "@payloadcms/admin-bar": "3.31.0",
     "@payloadcms/next": "3.31.0",
@@ -32,7 +34,6 @@
     "@payloadcms/richtext-lexical": "3.31.0",
     "@payloadcms/ui": "3.31.0",
     "@payloadcms/plugin-seo": "3.31.0",
-    "@payloadcms/payload-cloud": "3.31.0",
     "@payloadcms/plugin-nested-docs": "3.31.0",
     "@payloadcms/plugin-redirects": "3.31.0",
     "@payloadcms/plugin-search": "3.31.0",

@@ -1,9 +1,9 @@
-import { payloadCloudPlugin } from "@payloadcms/payload-cloud";
 import { formBuilderPlugin } from "@payloadcms/plugin-form-builder";
 import { nestedDocsPlugin } from "@payloadcms/plugin-nested-docs";
 import { redirectsPlugin } from "@payloadcms/plugin-redirects";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { searchPlugin } from "@payloadcms/plugin-search";
+import { s3Storage } from "@payloadcms/storage-s3";
 import { multiTenantPlugin } from "@payloadcms/plugin-multi-tenant";
 import { sentryPlugin } from "@payloadcms/plugin-sentry";
 import { Plugin } from "payload";
@@ -41,7 +41,22 @@ export const plugins: Plugin[] = [
   sentryPlugin({
     Sentry,
   }),
-  payloadCloudPlugin(),
+  s3Storage({
+    collections: {
+      media: {
+        prefix: "mediaassets",
+      },
+    },
+    bucket: process.env.S3_BUCKET!,
+    config: {
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID!,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+      },
+      region: "auto",
+      endpoint: process.env.S3_ENDPOINT!,
+    },
+  }),
   multiTenantPlugin<Config>({
     collections: {
       pages: {},
@@ -70,7 +85,6 @@ export const plugins: Plugin[] = [
     },
     userHasAccessToAllTenants: (user) => isSuperAdmin(user),
   }),
-
   redirectsPlugin({
     collections: ["pages", "posts"],
     overrides: {

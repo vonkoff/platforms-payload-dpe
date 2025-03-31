@@ -23,13 +23,6 @@ export const Media: CollectionConfig = {
     read: () => true,
     update: superAdminOrTenantAdminAccess,
   },
-
-  // access: {
-  //   create: authenticated,
-  //   delete: authenticated,
-  //   read: anyone,
-  //   update: authenticated,
-  // },
   fields: [
     {
       name: "alt",
@@ -51,8 +44,9 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
-    staticDir: path.resolve(dirname, "../../public/media"),
+    // // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
+    // staticDir: path.resolve(dirname, "../../public/media"),
+    disableLocalStorage: true,
     adminThumbnail: "thumbnail",
     focalPoint: true,
     imageSizes: [

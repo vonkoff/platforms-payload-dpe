@@ -1,10 +1,10 @@
 // src/elements/Dashboard/MissingPostsGroup/index.tsx
 import React from "react";
-// import { getPayload } from "payload";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { formatAdminURL } from "@payloadcms/ui/shared";
 import { FeatureCard } from "../DashboardFeatureCard";
-import { CompactFeatureCard } from "../DashboardCompactFeatureCard"; // New import
+import { CompactFeatureCard } from "../DashboardCompactFeatureCard";
 import { BasePayload } from "payload";
 import { AlertTriangle } from "lucide-react";
 
@@ -19,13 +19,22 @@ export const MissingPostsGroup: React.FC<Props> = async ({
   adminRoute,
   payload,
 }) => {
-  // Query posts with missing information
+  const cookieStore = await cookies();
+  const tenantId = cookieStore.get("payload-tenant")?.value;
+
+  if (!tenantId) {
+    console.warn("No tenant selected");
+    //TODO: Add in <p>Select Tenant<p> or something to notify them to see what is missing
+    return null;
+  }
+
   const missingSeoTitle = await payload.find({
     collection: "posts",
     where: {
-      "meta.title": {
-        exists: false,
-      },
+      and: [
+        { "meta.title": { exists: false } },
+        { tenant: { equals: tenantId } },
+      ],
     },
     limit: 0,
   });
@@ -33,9 +42,10 @@ export const MissingPostsGroup: React.FC<Props> = async ({
   const missingSeoDesc = await payload.find({
     collection: "posts",
     where: {
-      "meta.description": {
-        exists: false,
-      },
+      and: [
+        { "meta.description": { exists: false } },
+        { tenant: { equals: tenantId } },
+      ],
     },
     limit: 0,
   });
@@ -43,9 +53,10 @@ export const MissingPostsGroup: React.FC<Props> = async ({
   const missingSeoImage = await payload.find({
     collection: "posts",
     where: {
-      "meta.image": {
-        exists: false,
-      },
+      and: [
+        { "meta.image": { exists: false } },
+        { tenant: { equals: tenantId } },
+      ],
     },
     limit: 0,
   });
@@ -53,9 +64,7 @@ export const MissingPostsGroup: React.FC<Props> = async ({
   const missingHeroImage = await payload.find({
     collection: "posts",
     where: {
-      heroImage: {
-        exists: false,
-      },
+      and: [{ heroImage: { exists: false } }, { tenant: { equals: tenantId } }],
     },
     limit: 0,
   });
@@ -63,9 +72,10 @@ export const MissingPostsGroup: React.FC<Props> = async ({
   const missingCategories = await payload.find({
     collection: "posts",
     where: {
-      categories: {
-        exists: false,
-      },
+      and: [
+        { categories: { exists: false } },
+        { tenant: { equals: tenantId } },
+      ],
     },
     limit: 0,
   });

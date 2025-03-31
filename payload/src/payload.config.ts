@@ -15,6 +15,8 @@ import Users from "./collections/Users";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import { seed } from "./seed";
 import { plugins } from "./plugins";
+import { resendAdapter } from "@payloadcms/email-resend";
+import sharp from "sharp";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -80,8 +82,16 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI as string,
   }),
+  email: resendAdapter({
+    defaultFromAddress: "onboarding@resend.dev",
+    defaultFromName: "Payload CMS",
+    apiKey: process.env.RESEND_API_KEY || "",
+  }),
+  sharp: sharp,
   onInit: async (args) => {
     if (process.env.SEED_DB) {
+      console.log(process.env.SEED_DB);
+      console.log("WEE SEED");
       await seed(args);
     }
   },

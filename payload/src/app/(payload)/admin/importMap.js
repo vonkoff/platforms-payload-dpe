@@ -42,6 +42,7 @@ import { GlobalViewRedirect as GlobalViewRedirect_d6d5f193a167989e2ee7d14202901e
 import { BeforeLogin as BeforeLogin_2d621bd8012039af67826eed2d0c2f4a } from '../../../elements/BeforeLogin'
 import { TenantSelector as TenantSelector_1d0591e3cf4f332c83a86da13a0de59a } from '@payloadcms/plugin-multi-tenant/client'
 import { AdminErrorBoundary as AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688 } from '@payloadcms/plugin-sentry/client'
+import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { TenantSelectionProvider as TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62 } from '@payloadcms/plugin-multi-tenant/rsc'
 import { Dashboard as Dashboard_83c898cd1417d42ed49147a7b75f8c9b } from '../../../elements/Dashboard'
 
@@ -90,6 +91,7 @@ export const importMap = {
   "/elements/BeforeLogin#BeforeLogin": BeforeLogin_2d621bd8012039af67826eed2d0c2f4a,
   "@payloadcms/plugin-multi-tenant/client#TenantSelector": TenantSelector_1d0591e3cf4f332c83a86da13a0de59a,
   "@payloadcms/plugin-sentry/client#AdminErrorBoundary": AdminErrorBoundary_e5a9e14bdbe97e70ba60697217fe7688,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "@payloadcms/plugin-multi-tenant/rsc#TenantSelectionProvider": TenantSelectionProvider_d6d5f193a167989e2ee7d14202901e62,
   "/elements/Dashboard#Dashboard": Dashboard_83c898cd1417d42ed49147a7b75f8c9b
 }
