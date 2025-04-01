@@ -2,11 +2,10 @@ import { getSiteData, getVehicleModels } from "@/lib/fetchers";
 import VehicleNotificationsForm from "@/components/VehicleNotificationsForm";
 
 interface VehicleNotificationsPageProps {
-  params: {
+  params: Promise<{
     domain: string;
-  };
+  }>;
 }
-
 export default async function VehicleNotificationsPage({
   params,
 }: VehicleNotificationsPageProps) {
