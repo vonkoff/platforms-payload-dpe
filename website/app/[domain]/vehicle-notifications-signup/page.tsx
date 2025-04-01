@@ -1,5 +1,5 @@
 import { getSiteData, getVehicleModels } from "@/lib/fetchers";
-import VehicleNotificationsForm from "@/components/VehicleNotificationsForm";
+// import VehicleNotificationsForm from "@/components/VehicleNotificationsForm";
 
 interface VehicleNotificationsPageProps {
   params: Promise<{
@@ -32,6 +32,7 @@ export default async function VehicleNotificationsPage({
 
   // Pass data as props to the client component
   return (
-    <VehicleNotificationsForm tenant={tenant} vehicleOptions={vehicleOptions} />
+    <div>Hi</div>
+    // <VehicleNotificationsForm tenant={tenant} vehicleOptions={vehicleOptions} />
   );
 }
