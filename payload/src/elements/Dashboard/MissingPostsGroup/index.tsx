@@ -6,7 +6,7 @@ import { formatAdminURL } from "@payloadcms/ui/shared";
 import { FeatureCard } from "../DashboardFeatureCard";
 import { CompactFeatureCard } from "../DashboardCompactFeatureCard";
 import { BasePayload } from "payload";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Loader } from "lucide-react";
 
 import "./index.scss";
 
@@ -28,57 +28,65 @@ export const MissingPostsGroup: React.FC<Props> = async ({
     return null;
   }
 
-  const missingSeoTitle = await payload.find({
-    collection: "posts",
-    where: {
-      and: [
-        { "meta.title": { exists: false } },
-        { tenant: { equals: tenantId } },
-      ],
-    },
-    limit: 0,
-  });
-
-  const missingSeoDesc = await payload.find({
-    collection: "posts",
-    where: {
-      and: [
-        { "meta.description": { exists: false } },
-        { tenant: { equals: tenantId } },
-      ],
-    },
-    limit: 0,
-  });
-
-  const missingSeoImage = await payload.find({
-    collection: "posts",
-    where: {
-      and: [
-        { "meta.image": { exists: false } },
-        { tenant: { equals: tenantId } },
-      ],
-    },
-    limit: 0,
-  });
-
-  const missingHeroImage = await payload.find({
-    collection: "posts",
-    where: {
-      and: [{ heroImage: { exists: false } }, { tenant: { equals: tenantId } }],
-    },
-    limit: 0,
-  });
-
-  const missingCategories = await payload.find({
-    collection: "posts",
-    where: {
-      and: [
-        { categories: { exists: false } },
-        { tenant: { equals: tenantId } },
-      ],
-    },
-    limit: 0,
-  });
+  // Use Promise.all to fetch all data in parallel for better performance
+  const [
+    missingSeoTitle,
+    missingSeoDesc,
+    missingSeoImage,
+    missingHeroImage,
+    missingCategories,
+  ] = await Promise.all([
+    payload.find({
+      collection: "posts",
+      where: {
+        and: [
+          { "meta.title": { exists: false } },
+          { tenant: { equals: tenantId } },
+        ],
+      },
+      limit: 0,
+    }),
+    payload.find({
+      collection: "posts",
+      where: {
+        and: [
+          { "meta.description": { exists: false } },
+          { tenant: { equals: tenantId } },
+        ],
+      },
+      limit: 0,
+    }),
+    payload.find({
+      collection: "posts",
+      where: {
+        and: [
+          { "meta.image": { exists: false } },
+          { tenant: { equals: tenantId } },
+        ],
+      },
+      limit: 0,
+    }),
+    payload.find({
+      collection: "posts",
+      where: {
+        and: [
+          { heroImage: { exists: false } },
+          { tenant: { equals: tenantId } },
+        ],
+      },
+      limit: 0,
+    }),
+    payload.find({
+      collection: "posts",
+      where: {
+        and: [
+          { categories: { exists: false } },
+          { tenant: { equals: tenantId } },
+        ],
+      },
+      limit: 0,
+    }),
+  ]);
 
   // Calculate total SEO issues (posts missing any SEO field)
   const missingSeoCount = Math.max(

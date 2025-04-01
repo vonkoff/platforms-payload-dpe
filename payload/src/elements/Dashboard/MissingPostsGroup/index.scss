@@ -1,5 +1,32 @@
 // src/elements/Dashboard/MissingPostsGroup/index.scss
 .missing-posts-group {
+  &.loading {
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+
+    .dashboard__label {
+      color: var(--theme-elevation-500, #6d6d6d);
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+
+    .animate-spin {
+      animation: spin 1.5s linear infinite;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
   .dashboard__card-list {
     li {
       .feature-card {

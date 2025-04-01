@@ -9,6 +9,7 @@ import { CallToAction } from "../../blocks/CallToAction/config";
 import { Content } from "../../blocks/Content/config";
 import { FormBlock } from "../../blocks/Form/config";
 import { MediaBlock } from "../../blocks/MediaBlock/config";
+import NotificationBlock from "../../blocks/NotificationBlock/config";
 import { hero } from "@/heros/config";
 import { populatePublishedAt } from "@/hooks/populatePublishedAt";
 import { revalidateDelete, revalidatePage } from "./hooks/revalidatePage";
@@ -74,7 +75,14 @@ export const Pages: CollectionConfig = {
             {
               name: "layout",
               type: "blocks",
-              blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [
+                CallToAction,
+                Content,
+                MediaBlock,
+                Archive,
+                FormBlock,
+                NotificationBlock,
+              ],
               required: true,
               admin: {
                 initCollapsed: true,

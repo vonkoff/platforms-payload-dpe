@@ -1,9 +1,10 @@
 import { type groupNavItems } from "@payloadcms/ui/shared";
 import { AdminViewProps, ServerProps } from "payload";
-import { FC, Fragment } from "react";
+import { FC, Fragment, Suspense } from "react";
 import { DashboardBanner } from "./DashboardBanner";
 import { DashboardGroup } from "./DashboardGroup";
 import { MissingPostsGroup } from "./MissingPostsGroup";
+import { MissingPostsLoading } from "./MissingPostsGroup/loading";
 
 type DashboardProps = {
   navGroups: ReturnType<typeof groupNavItems>;
@@ -26,7 +27,9 @@ export const Dashboard: FC<DashboardProps> = (props) => {
       <DashboardBanner />
       <div className="dashboard">
         <div className="dashboard__wrap">
-          <MissingPostsGroup adminRoute={adminRoute} payload={payload} />
+          <Suspense fallback={<MissingPostsLoading />}>
+            <MissingPostsGroup adminRoute={adminRoute} payload={payload} />
+          </Suspense>
           {navGroups.map(({ label, entities }, entityIndex) => (
             <DashboardGroup
               key={entityIndex}

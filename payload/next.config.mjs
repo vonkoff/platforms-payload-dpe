@@ -6,7 +6,7 @@ const nextConfig = {
   eslint: {
     // Warning: This allows production builds to successfully complete even if
     // your project has ESLint errors.
-    // TODO: Should we do this? Need it to deploy to payload cloud
+    // FIXME: Should we do this? Need it to deploy to payload cloud
     ignoreDuringBuilds: true,
   },
   // Your Next.js config here

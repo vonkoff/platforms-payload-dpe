@@ -4,6 +4,7 @@ import { getSiteData, getPageForTenant } from "@/lib/fetchers";
 import { RenderHero } from "@/heros/RenderHero";
 import { RenderBlocks } from "@/blocks/RenderBlocks";
 
+//TODO: Make ISR here
 // export async function generateStaticParams() {
 //   const allSites = await db.query.sites.findMany({
 //     // feel free to remove this filter if you want to generate paths for all sites

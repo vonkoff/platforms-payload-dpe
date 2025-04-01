@@ -2,6 +2,48 @@ import { unstable_cache } from "next/cache";
 import { getPayload } from "payload";
 import config from "@payload-config";
 
+//FIXME: Tanstack form implementation so far
+// Update this function in your fetchers.ts file
+export async function getVehicleModels(domain: string): Promise<string[]> {
+  const payload = await getPayload({ config });
+  const site = await getSiteData(domain);
+
+  if (!site) return [];
+
+  return await unstable_cache(
+    async () => {
+      const vehiclesQuery = await payload.find({
+        collection: "vehicles",
+        where: {
+          dealerId: { equals: site.id },
+        },
+        select: {
+          make: true,
+          model: true,
+        },
+        limit: 100,
+      });
+
+      // Extract unique make/model combinations
+      const uniqueModels = new Set<string>();
+      vehiclesQuery.docs.forEach((doc) => {
+        if (doc.make && doc.model) {
+          console.log(doc.make);
+          uniqueModels.add(`${doc.make} ${doc.model}`);
+        }
+      });
+      console.log("unique models", vehiclesQuery);
+
+      return Array.from(uniqueModels);
+    },
+    [`vehicleModels-${site.id}`],
+    {
+      revalidate: 900,
+      tags: [`vehicleModels-${site.id}`],
+    },
+  )();
+}
+
 export async function getHeaderData(domain: string) {
   const payload = await getPayload({ config });
   const site = await getSiteData(domain);

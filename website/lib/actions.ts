@@ -1,4 +1,67 @@
+//FIXME: Tanstack form implementation so far
 //TODO: Use this as you see fit or dlete after time
+"use server";
+
+import {
+  ServerValidateError,
+  createServerValidate,
+} from "@tanstack/react-form/nextjs";
+import { formOptions } from "@tanstack/react-form/nextjs";
+
+type FrequencyOptions = "daily" | "weekly";
+
+const formOpts = formOptions({
+  defaultValues: {
+    email: "",
+    firstName: "",
+    frequency: "daily" as FrequencyOptions,
+    selectedModels: [] as string[],
+  },
+});
+
+// Create the server action that will infer the types of the form from `formOpts`
+const serverValidate = createServerValidate({
+  ...formOpts,
+  onServerValidate: ({ value }) => {
+    // Add any server-side validation logic here
+    if (!value.email) {
+      return "Email is required";
+    }
+    if (!value.firstName) {
+      return "First name is required";
+    }
+    if (value.selectedModels.length === 0) {
+      return "Please select at least one model";
+    }
+  },
+});
+
+export async function submitNotificationForm(
+  prev: unknown,
+  formData: FormData,
+) {
+  try {
+    const validatedData = await serverValidate(formData);
+
+    // Process the form data here
+    // For example, send to an API or database
+    console.log("Processed form data:", validatedData);
+
+    // Return success message or data
+    return { success: true, message: "Subscription successful!" };
+  } catch (e) {
+    if (e instanceof ServerValidateError) {
+      return e.formState;
+    }
+
+    // Handle other errors
+    console.error("Form submission error:", e);
+    return {
+      success: false,
+      message: "An error occurred while submitting the form",
+    };
+  }
+}
 
 //INFO: OLD CODE NOT NEEDEd
 // "use server";
