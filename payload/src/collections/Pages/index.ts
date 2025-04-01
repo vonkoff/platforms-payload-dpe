@@ -9,7 +9,8 @@ import { CallToAction } from "../../blocks/CallToAction/config";
 import { Content } from "../../blocks/Content/config";
 import { FormBlock } from "../../blocks/Form/config";
 import { MediaBlock } from "../../blocks/MediaBlock/config";
-import NotificationBlock from "../../blocks/NotificationBlock/config";
+//FIXME: Notification block finish up and use
+// import NotificationBlock from "../../blocks/NotificationBlock/config";
 import { hero } from "@/heros/config";
 import { populatePublishedAt } from "@/hooks/populatePublishedAt";
 import { revalidateDelete, revalidatePage } from "./hooks/revalidatePage";
@@ -81,7 +82,7 @@ export const Pages: CollectionConfig = {
                 MediaBlock,
                 Archive,
                 FormBlock,
-                NotificationBlock,
+                // NotificationBlock,
               ],
               required: true,
               admin: {

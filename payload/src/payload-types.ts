@@ -194,27 +194,7 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (
-    | CallToActionBlock
-    | ContentBlock
-    | MediaBlock
-    | ArchiveBlock
-    | FormBlock
-    | {
-        title?: string | null;
-        message: string;
-        variant?: ('default' | 'info' | 'warning' | 'success' | 'error') | null;
-        dismissible?: boolean | null;
-        link?: {
-          label?: string | null;
-          url?: string | null;
-          newTab?: boolean | null;
-        };
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'notification';
-      }
-  )[];
+  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -2034,23 +2014,6 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
-        notification?:
-          | T
-          | {
-              title?: T;
-              message?: T;
-              variant?: T;
-              dismissible?: T;
-              link?:
-                | T
-                | {
-                    label?: T;
-                    url?: T;
-                    newTab?: T;
-                  };
-              id?: T;
-              blockName?: T;
-            };
       };
   meta?:
     | T
