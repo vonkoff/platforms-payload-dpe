@@ -6,7 +6,7 @@ import { formatAdminURL } from "@payloadcms/ui/shared";
 import { FeatureCard } from "../DashboardFeatureCard";
 import { CompactFeatureCard } from "../DashboardCompactFeatureCard";
 import { BasePayload } from "payload";
-import { AlertTriangle, Loader } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 import "./index.scss";
 
@@ -27,6 +27,9 @@ export const MissingPostsGroup: React.FC<Props> = async ({
     //TODO: Add in <p>Select Tenant<p> or something to notify them to see what is missing
     return null;
   }
+
+  // Simulate a delay to test Suspense fallback (remove this in production if it works)
+  // await new Promise((resolve) => setTimeout(resolve, 10000)); // 3-second delay
 
   // Use Promise.all to fetch all data in parallel for better performance
   const [

@@ -194,6 +194,33 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
+  /**
+   * Add a notification specific to this page (optional)
+   */
+  notification?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    backgroundColor?: string | null;
+    textColor?: string | null;
+    dismissible?: boolean | null;
+    hasLink?: boolean | null;
+    linkWrapper?: {
+      link?: {
+        type?: ('reference' | 'custom') | null;
+        newTab?: boolean | null;
+        reference?:
+          | ({
+              relationTo: 'pages';
+              value: string | Page;
+            } | null)
+          | ({
+              relationTo: 'posts';
+              value: string | Post;
+            } | null);
+        url?: string | null;
+      };
+    };
+  };
   layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
   meta?: {
     title?: string | null;
@@ -2005,6 +2032,28 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
         media?: T;
+      };
+  notification?:
+    | T
+    | {
+        enabled?: T;
+        message?: T;
+        backgroundColor?: T;
+        textColor?: T;
+        dismissible?: T;
+        hasLink?: T;
+        linkWrapper?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                  };
+            };
       };
   layout?:
     | T

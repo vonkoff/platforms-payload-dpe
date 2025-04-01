@@ -9,6 +9,8 @@ import { CallToAction } from "../../blocks/CallToAction/config";
 import { Content } from "../../blocks/Content/config";
 import { FormBlock } from "../../blocks/Form/config";
 import { MediaBlock } from "../../blocks/MediaBlock/config";
+import { colorPickerField } from "@/fields/colorPicker";
+import { link } from "@/fields/link";
 //FIXME: Notification block finish up and use
 // import NotificationBlock from "../../blocks/NotificationBlock/config";
 import { hero } from "@/heros/config";
@@ -68,7 +70,115 @@ export const Pages: CollectionConfig = {
       type: "tabs",
       tabs: [
         {
-          fields: [hero],
+          fields: [
+            hero,
+            {
+              name: "notification",
+              type: "group",
+              label: "Page Notification",
+              admin: {
+                description:
+                  "Add a notification specific to this page (optional)",
+              },
+              fields: [
+                {
+                  name: "enabled",
+                  type: "checkbox",
+                  label: "Show Notification",
+                  defaultValue: false,
+                },
+                {
+                  name: "message",
+                  type: "text",
+                  label: "Notification Message",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                },
+                colorPickerField({
+                  name: "backgroundColor",
+                  label: "Background Color",
+                  defaultValue: "#E5F6FD",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                }),
+                colorPickerField({
+                  name: "textColor",
+                  label: "Text Color",
+                  defaultValue: "#0C4A6E",
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                }),
+                {
+                  name: "dismissible",
+                  type: "checkbox",
+                  label: "Allow users to dismiss this notification",
+                  defaultValue: false,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                },
+                {
+                  name: "hasLink",
+                  type: "checkbox",
+                  label: "Make the entire notification clickable",
+                  defaultValue: false,
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.enabled,
+                  },
+                },
+                {
+                  name: "linkWrapper",
+                  type: "group",
+                  label: "Notification Link",
+                  admin: {
+                    condition: (_, siblingData) =>
+                      siblingData?.enabled && siblingData?.hasLink === true,
+                    style: {
+                      borderTop: "1px solid #e1e1e1",
+                      paddingTop: "1rem",
+                      marginTop: "1rem",
+                    },
+                  },
+                  fields: [
+                    link({
+                      appearances: false,
+                      disableLabel: true,
+                    }),
+                  ],
+                },
+
+                // {
+                //   name: "link",
+                //   type: "group",
+                //   label: "Add Link",
+                //   admin: {
+                //     condition: (_, siblingData) => siblingData?.enabled,
+                //   },
+                //   fields: [
+                //     {
+                //       name: "text",
+                //       type: "text",
+                //       label: "Link Text",
+                //     },
+                //     {
+                //       name: "url",
+                //       type: "text",
+                //       label: "URL",
+                //     },
+                //     {
+                //       name: "newTab",
+                //       type: "checkbox",
+                //       label: "Open in new tab",
+                //       defaultValue: false,
+                //     },
+                //   ],
+                // },
+              ],
+            },
+          ],
           label: "Hero",
         },
         {

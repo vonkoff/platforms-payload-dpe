@@ -1,19 +1,49 @@
 // src/elements/Dashboard/MissingPostsGroup/index.scss
 .missing-posts-group {
+  // &.loading {
+  //   padding: 1rem;
+  //   background-color: rgba(0, 0, 0, 0.03);
+  //   border-radius: 4px;
+  //
+  //   .dashboard__label {
+  //     color: var(--theme-elevation-500, #6d6d6d);
+  //     display: flex;
+  //     align-items: center;
+  //     margin: 0;
+  //   }
+  //
+  //   .animate-spin {
+  //     animation: spin 1.5s linear infinite;
+  //   }
+  // }
+
   &.loading {
-    padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.03);
-    border-radius: 4px;
+    padding: 1.5rem; // Increased padding
+    background-color: rgba(59, 130, 246, 0.1); // Light blue background instead of light gray
+    border-radius: 8px; // Increased border radius
+    border: 1px dashed rgba(59, 130, 246, 0.4); // Added dashed border
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); // Added subtle shadow
 
     .dashboard__label {
-      color: var(--theme-elevation-500, #6d6d6d);
+      color: rgba(59, 130, 246, 0.9); // Blue color for the label
+      font-weight: 600; // Made text bolder
       display: flex;
       align-items: center;
       margin: 0;
+      font-size: 1.05em; // Slightly larger font
+
+      // Add spacing between label and spinner
+      svg {
+        margin-left: 8px;
+      }
     }
 
     .animate-spin {
       animation: spin 1.5s linear infinite;
+      color: rgba(59, 130, 246, 0.9); // Blue color for spinner
+      transform-origin: center; // Ensures smooth rotation
+      height: 1.2em; // Slightly larger spinner
+      width: 1.2em;
     }
   }
 

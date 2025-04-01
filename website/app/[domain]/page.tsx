@@ -3,6 +3,17 @@ import { notFound } from "next/navigation";
 import { getSiteData, getPageForTenant } from "@/lib/fetchers";
 import { RenderHero } from "@/heros/RenderHero";
 import { RenderBlocks } from "@/blocks/RenderBlocks";
+import { Notification } from "@/components/PageNotification";
+
+interface LinkType {
+  type?: "reference" | "custom";
+  reference?: {
+    relationTo: string;
+    value: string | { id: string };
+  };
+  url?: string;
+  newTab?: boolean;
+}
 
 //TODO: Make ISR here
 // export async function generateStaticParams() {
@@ -43,9 +54,42 @@ export default async function DomainHomePage(props: { params: Params }) {
   const page = await getPageForTenant(tenant.id, "home", draft);
   console.log(page, "- page found page.tsx");
   if (!page) notFound();
-  const { hero, layout } = page;
+  const { hero, layout, notification } = page;
+
+  let linkWrapper;
+  if (notification?.hasLink && notification?.linkWrapper?.link) {
+    const originalLink = notification.linkWrapper.link;
+    linkWrapper = {
+      link: {
+        type: originalLink.type as "reference" | "custom",
+        url: originalLink.url,
+        newTab: Boolean(originalLink.newTab),
+        // Only include reference if it exists and isn't null
+        ...(originalLink.reference && {
+          reference: {
+            relationTo: originalLink.reference.relationTo,
+            value: originalLink.reference.value,
+          },
+        }),
+      } as LinkType,
+    };
+  }
+
+  console.log("HERE IS THE NOTIFICTION", notification);
+
   return (
     <article>
+      {/* Render notification if it exists and is enabled */}
+      {notification?.enabled && (
+        <Notification
+          enabled={true}
+          message={notification.message || ""}
+          backgroundColor={notification.backgroundColor || "#E5F6FD"}
+          textColor={notification.textColor || "#0C4A6E"}
+          hasLink={!!notification.hasLink}
+          linkWrapper={linkWrapper}
+        />
+      )}
       <RenderHero {...hero} />
       <RenderBlocks blocks={layout} />
     </article>
