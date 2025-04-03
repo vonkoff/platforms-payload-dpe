@@ -59,6 +59,7 @@ export const plugins: Plugin[] = [
   }),
   multiTenantPlugin<Config>({
     collections: {
+      media: {},
       pages: {},
       posts: {},
       vehicles: {},

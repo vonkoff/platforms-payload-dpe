@@ -1,32 +1,14 @@
+// components/PageNotification.tsx
 import React from "react";
 import Link from "next/link";
-//FIXME: Remove the X or make it part of svg or just make it a character
-import { X } from "lucide-react";
+// import { X } from "lucide-react";
+import { cookies } from "next/headers";
+import DismissButton from "./DissmissNotificationButton";
 
 type LinkType = {
   type?: "reference" | "custom";
-  reference?: {
-    relationTo: string;
-    value: string | { id: string };
-  };
   url?: string;
   newTab?: boolean;
-};
-
-// Helper function to resolve link URL
-const resolveLinkUrl = (link: LinkType) => {
-  if (!link) return "#";
-
-  if (link.type === "custom" && link.url) {
-    return link.url;
-  }
-
-  if (link.type === "reference" && link.reference) {
-    const { relationTo, value } = link.reference;
-    return `/${relationTo}/${typeof value === "string" ? value : value.id || ""}`;
-  }
-
-  return "#";
 };
 
 export type NotificationProps = {
@@ -34,61 +16,67 @@ export type NotificationProps = {
   message?: string;
   backgroundColor?: string;
   textColor?: string;
-  dismissible?: boolean;
   hasLink?: boolean;
   linkWrapper?: {
     link?: LinkType;
   };
+  dismissible?: boolean;
+  notificationId?: string;
 };
 
-export const Notification: React.FC<NotificationProps> = ({
+export const Notification: React.FC<NotificationProps> = async ({
   enabled = false,
   message = "",
   backgroundColor = "#E5F6FD",
   textColor = "#0C4A6E",
-  dismissible = false,
   hasLink = false,
   linkWrapper,
+  dismissible = false,
+  //FIXME: Should it be global?
+  notificationId = "global",
 }) => {
   // Don't render if not enabled or no message
-  if (!enabled || !message) return null;
+  const cookieStore = await cookies();
+  const isDismissed =
+    cookieStore.get(`notification-dismissed-${notificationId}`)?.value ===
+    "true";
+
+  if (!enabled || !message || isDismissed) return null;
 
   const NotificationContent = () => (
-    <div className="container mx-auto flex items-center justify-between px-4">
-      <div className="flex items-center gap-4">
-        <p>{message}</p>
-      </div>
-      {dismissible && (
-        <button
-          className="flex items-center justify-center rounded-full p-1 hover:bg-black hover:bg-opacity-20"
-          aria-label="Dismiss notification"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      )}
+    <div className="container mx-auto flex h-full items-center justify-center px-4 text-center">
+      <p>{message}</p>
     </div>
   );
 
   // If notification should be a link
-  if (hasLink && linkWrapper?.link) {
+  if (hasLink && linkWrapper?.link?.url) {
     const link = linkWrapper.link;
-    const linkUrl = resolveLinkUrl(link);
     const target = link.newTab ? "_blank" : "_self";
     const rel = link.newTab ? "noopener noreferrer" : undefined;
+    const url = link.url || "/";
 
     return (
-      <Link
-        href={linkUrl}
-        target={target}
-        rel={rel}
-        className="block w-full cursor-pointer py-3 hover:opacity-90"
-        style={{
-          backgroundColor,
-          color: textColor,
-        }}
+      <div
+        className="relative w-full"
+        style={{ backgroundColor, color: textColor }}
       >
-        <NotificationContent />
-      </Link>
+        <Link
+          href={url}
+          target={target}
+          rel={rel}
+          className="block w-full cursor-pointer py-3 hover:opacity-90"
+        >
+          <NotificationContent />
+        </Link>
+
+        {dismissible && (
+          <DismissButton
+            notificationId={notificationId}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-current opacity-70 hover:opacity-100 focus:outline-none"
+          />
+        )}
+      </div>
     );
   }
 
@@ -99,9 +87,16 @@ export const Notification: React.FC<NotificationProps> = ({
         backgroundColor,
         color: textColor,
       }}
-      className="w-full py-3"
+      className="relative w-full py-3"
     >
       <NotificationContent />
+
+      {dismissible && (
+        <DismissButton
+          notificationId={notificationId}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-current opacity-70 hover:opacity-100 focus:outline-none"
+        />
+      )}
     </div>
   );
 };

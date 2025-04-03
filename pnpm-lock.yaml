@@ -77,6 +77,9 @@ importers:
       '@sentry/nextjs':
         specifier: ^9
         version: 9.10.0(@opentelemetry/context-async-hooks@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/core@1.30.1(@opentelemetry/api@1.9.0))(@opentelemetry/instrumentation@0.57.2(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.0))(next@15.2.4(@babel/core@7.26.10)(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(react@19.0.0)(webpack@5.98.0(@swc/core@1.11.13(@swc/helpers@0.5.15)))
+      '@unpic/react':
+        specifier: 1.0.1
+        version: 1.0.1(next@15.2.4(@opentelemetry/api@1.9.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.1
@@ -125,7 +128,7 @@ importers:
     devDependencies:
       '@payloadcms/graphql':
         specifier: latest
-        version: 3.31.0(graphql@16.10.0)(payload@3.31.0(graphql@16.10.0)(typescript@5.5.2))(typescript@5.5.2)
+        version: 3.32.0(graphql@16.10.0)(payload@3.31.0(graphql@16.10.0)(typescript@5.5.2))(typescript@5.5.2)
       '@swc/core':
         specifier: ^1.6.13
         version: 1.11.13(@swc/helpers@0.5.15)
@@ -1644,6 +1647,13 @@ packages:
     peerDependencies:
       graphql: ^16.8.1
       payload: 3.31.0
+
+  '@payloadcms/graphql@3.32.0':
+    resolution: {integrity: sha512-gBS5yA28DA08rk+f+Rw+ZjTM2qNAPgK3gMUlMnzkzN/t+WiBe0/Dz8f/PgF8D84YrY6aLbz6XAxGTAp4eECc8Q==}
+    hasBin: true
+    peerDependencies:
+      graphql: ^16.8.1
+      payload: 3.32.0
 
   '@payloadcms/live-preview-react@3.31.0':
     resolution: {integrity: sha512-PXpbBcoslbtq31XnnQmF++L+qyPoE6g2Q7MOPrLnLLSfi28DyhJcG1gcBywUHlg6phP4Phz/KBoKVqSkfEuWgg==}
@@ -7837,6 +7847,17 @@ snapshots:
       payload: 3.31.0(graphql@16.10.0)(typescript@5.5.2)
 
   '@payloadcms/graphql@3.31.0(graphql@16.10.0)(payload@3.31.0(graphql@16.10.0)(typescript@5.5.2))(typescript@5.5.2)':
+    dependencies:
+      graphql: 16.10.0
+      graphql-scalars: 1.22.2(graphql@16.10.0)
+      payload: 3.31.0(graphql@16.10.0)(typescript@5.5.2)
+      pluralize: 8.0.0
+      ts-essentials: 10.0.3(typescript@5.5.2)
+      tsx: 4.19.2
+    transitivePeerDependencies:
+      - typescript
+
+  '@payloadcms/graphql@3.32.0(graphql@16.10.0)(payload@3.31.0(graphql@16.10.0)(typescript@5.5.2))(typescript@5.5.2)':
     dependencies:
       graphql: 16.10.0
       graphql-scalars: 1.22.2(graphql@16.10.0)

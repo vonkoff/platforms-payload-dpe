@@ -53,6 +53,7 @@ export const Tenants: CollectionConfig = {
       admin: {
         description: "DealerID of Tenant for SFTP purposes",
       },
+      unique: true,
       index: true,
       required: true,
     },
